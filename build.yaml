@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      swagger_dart_code_generator:
+        options:
+          input_folder: "lib/swaggers/"
+          output_folder: "lib/api/generated/"
+          use_chopper_client: true
+          separate_models: true
+          use_path_for_request_names: true
+          include_if_null: false
+          enums_case_sensitive: false
