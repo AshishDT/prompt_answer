@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
+import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 import '../controllers/dashboard_controller.dart';
+import 'chat_prompt_screen.dart';
 
 /// Dashboard View
 class DashboardView extends GetView<DashboardController> {
@@ -11,14 +12,36 @@ class DashboardView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        backgroundColor: AppColors.kffffff,
         appBar: AppBar(
-          title: const Text('DashboardView'),
+          backgroundColor: AppColors.kffffff,
+          title: Text(
+            'Chat UI',
+            style: GoogleFonts.poppins(
+              color: AppColors.k000000,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           centerTitle: true,
         ),
-        body: const Center(
-          child: Text(
-            'DashboardView is working',
-            style: TextStyle(fontSize: 20),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          child: Obx(
+            () => CustomScrollView(
+              slivers: List<Widget>.generate(
+                controller.chatEntries().length,
+                (i) => ChatPromptSection(
+                  chatEntry: controller.chatEntries()[i],
+                  tabs: controller.tabItems[i] ?? [],
+                  tabController: controller.tabControllers[i],
+                  currentTabIndex: controller.tabIndices[i]?.value ?? 0,
+                ),
+              ),
+            ),
           ),
         ),
       );
