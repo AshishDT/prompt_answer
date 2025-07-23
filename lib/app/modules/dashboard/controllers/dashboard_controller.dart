@@ -294,7 +294,7 @@ class DashboardController extends GetxController
         // Animate the scroll to bring the target into view
         scrollController.animateTo(
           scrollOffset,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
       }
@@ -351,7 +351,7 @@ class DashboardController extends GetxController
               scrollController.position.minScrollExtent,
               scrollController.position.maxScrollExtent,
             ),
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.easeInOut,
           );
         }
