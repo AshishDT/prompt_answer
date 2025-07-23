@@ -39,8 +39,15 @@ class ChatPromptSection extends StatelessWidget {
         key: sectionKey,
         header: Container(
           key: headerKey,
-          color: Colors.white,
-          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+          ),
+          padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -59,13 +66,17 @@ class ChatPromptSection extends StatelessWidget {
                   dividerHeight: 0,
                   padding: EdgeInsets.zero,
                   isScrollable: true,
+                  splashBorderRadius: BorderRadius.zero,
                   tabAlignment: TabAlignment.start,
                   indicatorColor: Colors.black,
                   labelColor: Colors.black,
+                  indicator: const UnderlineTabIndicator(
+                    borderSide: BorderSide(width: 2),
+                  ),
                   unselectedLabelColor: Colors.grey,
                   indicatorSize: TabBarIndicatorSize.label,
                   indicatorAnimation: TabIndicatorAnimation.elastic,
-                  labelPadding: const EdgeInsets.only(right: 20),
+                  labelPadding: const EdgeInsets.only(right: 30),
                   tabs: tabs
                       .map(
                         (TabItem tab) => Tab(

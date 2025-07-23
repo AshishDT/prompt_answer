@@ -12,21 +12,21 @@ class SourceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
-        child: Column(
-          children: List<Widget>.generate(
-            entry.sources.length,
-            (int i) {
-              final Source source = entry.sources[i];
-              return ListTile(
-                title: Text(source.title),
-                subtitle: Text(source.url),
-                leading: const Icon(Icons.link),
-                contentPadding: EdgeInsets.zero,
-                onTap: () {},
-              );
-            },
-          ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      child: Column(
+        children: List<Widget>.generate(
+          entry.sources.length,
+          (int i) {
+            final Source source = entry.sources[i];
+            return ListTile(
+              title: Text(source.title),
+              subtitle: Text(source.url),
+              leading: const Icon(Icons.link),
+              contentPadding: EdgeInsets.zero,
+              onTap: () {},
+            );
+          },
         ),
-      );
+      ),
+    );
 }
