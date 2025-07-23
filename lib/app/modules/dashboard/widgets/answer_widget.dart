@@ -7,14 +7,18 @@ class AnswerWidget extends StatelessWidget {
   /// Constructor for AnswerWidget
   const AnswerWidget({
     required this.entry,
+    required this.scrollKey,
     super.key,
   });
 
   /// Entry containing the answers to display
   final ChatEntry entry;
 
+  /// Scroll key
+  final Key scrollKey;
   @override
   Widget build(BuildContext context) => Padding(
+        key: scrollKey,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

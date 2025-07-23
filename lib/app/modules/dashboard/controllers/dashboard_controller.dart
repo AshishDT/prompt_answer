@@ -44,8 +44,12 @@ class DashboardController extends GetxController
   final Map<int, GlobalKey> promptKeys =
       <int, GlobalKey<State<StatefulWidget>>>{};
 
-  final Map<int, GlobalKey> headerKeys = <int, GlobalKey<State<StatefulWidget>>>{};
+  /// Header keys for each chat entry
+  final Map<int, GlobalKey> headerKeys =
+      <int, GlobalKey<State<StatefulWidget>>>{};
 
+  /// Keys for tab content of each chat entry
+  final Map<int, List<GlobalKey>> contentKeys = <int, List<GlobalKey>>{};
 
   /// Initializes prompt keys for each chat entry
   void initializeKeys() {
@@ -60,13 +64,25 @@ class DashboardController extends GetxController
 
   /// Initializes tabs for each chat entry
   void _initializeTabs() {
+    // Dispose existing tab controllers
+    for (final controller in tabControllers.values) {
+      controller.dispose();
+    }
+
+    // Clear previous data
+    tabItems.clear();
+    tabControllers.clear();
+    tabIndices.clear();
+    contentKeys.clear();
+    promptKeys.clear();
+    headerKeys.clear();
+
+    // Recreate prompt/header keys
     initializeKeys();
 
     for (int i = 0; i < chatEntries.length; i++) {
       final ChatEntry entry = chatEntries[i]
         ..key = GlobalKey(debugLabel: 'ChatEntryKey_$i');
-
-      final List<TabItem> tabs = <TabItem>[];
 
       final ChatEntry safeEntry = ChatEntry(
         prompt: entry.prompt,
@@ -74,23 +90,45 @@ class DashboardController extends GetxController
         sources: List<Source>.from(entry.sources),
       );
 
+      final List<TabItem> tabs = <TabItem>[];
+      final List<GlobalKey<State<StatefulWidget>>> contentKeyList = [];
+
+      // Unique key for Answer tab content
       if (entry.answers.isNotEmpty) {
+        final GlobalKey<State<StatefulWidget>> key = GlobalKey<State<StatefulWidget>>(
+          debugLabel: 'content_answer_${i}_${DateTime.now().microsecondsSinceEpoch}',
+        );
+        contentKeyList.add(key);
         tabs.add(
           TabItem(
             label: 'Answer',
-            builder: () => AnswerWidget(entry: safeEntry),
+            builder: () => AnswerWidget(
+              scrollKey: key,
+              entry: safeEntry,
+            ),
           ),
         );
       }
 
+      // Unique key for Sources tab content
       if (entry.sources.isNotEmpty) {
+        final key = GlobalKey<State<StatefulWidget>>(
+          debugLabel: 'content_sources_${i}_${DateTime.now().microsecondsSinceEpoch}',
+        );
+        contentKeyList.add(key);
         tabs.add(
           TabItem(
             label: 'Sources',
-            builder: () => SourceWidget(entry: safeEntry),
+            builder: () => SourceWidget(
+              scrollKey: key,
+              entry: safeEntry,
+            ),
           ),
         );
       }
+
+      // Store content keys for scrolling logic
+      contentKeys[i] = contentKeyList;
 
       if (tabs.isNotEmpty) {
         final TabController controller = TabController(
@@ -103,14 +141,23 @@ class DashboardController extends GetxController
 
         controller.addListener(() {
           if (controller.indexIsChanging) {
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) {
-                final GlobalKey<State<StatefulWidget>>? key = promptKeys[i];
-                if (key != null) {
-                  scrollToPrompt(headerKeys[i]!);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final BuildContext? headerContext = headerKeys[i]?.currentContext;
+              final GlobalKey<State<StatefulWidget>>? contentKey =
+              contentKeys[i]?[controller.index];
+
+              final bool isPinned = _isHeaderPinned(headerContext);
+
+
+              if (isPinned) {
+                if (contentKey != null) {
+                  scrollToRevealContent(contentKey);
                 }
-              },
-            );
+              } else {
+                scrollToPrompt(headerKeys[i]!);
+              }
+            });
+
             tabIndices[i]?.value = controller.index;
           }
         });
@@ -118,19 +165,49 @@ class DashboardController extends GetxController
     }
   }
 
+  bool _isHeaderPinned(BuildContext? context) {
+    if (context == null) return false;
+
+    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+
+    final RenderObject? scrollRenderBox =
+    scrollController.position.context.storageContext.findRenderObject();
+    if (scrollRenderBox == null) {
+      return false;
+    }
+
+    final double headerOffset = renderBox
+        .localToGlobal(Offset.zero, ancestor: scrollRenderBox)
+        .dy;
+
+    final double scrollOffset = scrollController.offset;
+
+    final bool pinned = headerOffset <= 0 || headerOffset <= kToolbarHeight;
+
+    debugPrint('👾 [PINNED CHECK] headerOffset=$headerOffset, scrollOffset=$scrollOffset → pinned=$pinned');
+
+    return pinned;
+  }
+
   /// Scrolls to the prompt of a chat entry
   void scrollToPrompt(GlobalKey key) {
     final BuildContext? context = key.currentContext;
-    final BuildContext scrollContext = scrollController.position.context.storageContext;
+    final BuildContext scrollContext =
+        scrollController.position.context.storageContext;
     final RenderObject? scrollRenderObject = scrollContext.findRenderObject();
 
     if (context != null && scrollRenderObject != null) {
       final RenderObject? renderBox = context.findRenderObject();
       if (renderBox is RenderBox) {
-        final double offset = renderBox.localToGlobal(
-          Offset.zero,
-          ancestor: scrollRenderObject,
-        ).dy;
+        final double offset = renderBox
+            .localToGlobal(
+              Offset.zero,
+              ancestor: scrollRenderObject,
+            )
+            .dy;
 
         final double scrollOffset = scrollController.offset + offset;
 
@@ -139,6 +216,41 @@ class DashboardController extends GetxController
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
+      }
+    }
+  }
+
+  /// Scrolls to reveal content if it is cut off
+  void scrollToRevealContent(GlobalKey contentKey) {
+    final BuildContext? context = contentKey.currentContext;
+    final BuildContext scrollContext =
+        scrollController.position.context.storageContext;
+    final RenderObject? scrollRenderObject = scrollContext.findRenderObject();
+
+    if (context != null && scrollRenderObject != null) {
+      final RenderObject? renderBox = context.findRenderObject();
+      if (renderBox is RenderBox) {
+        final Offset offsetInScroll = renderBox.localToGlobal(
+          Offset.zero,
+          ancestor: scrollRenderObject,
+        );
+
+        final double contentTop = offsetInScroll.dy;
+        final double scrollOffset = scrollController.offset;
+        const double pinnedHeaderHeight = kToolbarHeight + 32;
+
+        if (contentTop < pinnedHeaderHeight) {
+          final double targetOffset = scrollOffset + (contentTop - pinnedHeaderHeight);
+
+          scrollController.animateTo(
+            targetOffset.clamp(
+              scrollController.position.minScrollExtent,
+              scrollController.position.maxScrollExtent,
+            ),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     }
   }
