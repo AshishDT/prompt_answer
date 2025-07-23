@@ -4,6 +4,7 @@ import 'package:nigerian_igbo/app/data/config/logger.dart';
 
 import '../models/chat_model.dart';
 import '../models/tab_item.dart';
+import '../repositories/static_declarations.dart' show StaticDeclarations;
 import '../widgets/answer_widget.dart';
 import '../widgets/source_widget.dart';
 
@@ -111,7 +112,7 @@ class DashboardController extends GetxController
       // Create a safe copy to pass into widgets (prevents mutation side effects)
       final ChatEntry safeEntry = ChatEntry(
         prompt: entry.prompt,
-        answers: List<String>.from(entry.answers),
+        answers: List<Answer>.from(entry.answers),
         sources: List<Source>.from(entry.sources),
       );
 
@@ -337,13 +338,13 @@ class DashboardController extends GetxController
         final double scrollOffset = scrollController.offset;
 
         // Define how much height the pinned header occupies
-        const double pinnedHeaderHeight = kToolbarHeight + 32;
+        const double pinnedHeaderHeight = kToolbarHeight;
 
         // If the content is hidden *behind* the pinned header
         if (contentTop < pinnedHeaderHeight) {
           // Calculate how much we need to scroll to bring it just below the pinned header
           final double targetOffset =
-              scrollOffset + (contentTop - pinnedHeaderHeight);
+              scrollOffset + (contentTop - pinnedHeaderHeight) - 50;
 
           // Animate to the computed scroll position, clamped within scroll bounds
           scrollController.animateTo(
@@ -363,15 +364,19 @@ class DashboardController extends GetxController
   final RxList<ChatEntry> chatEntries = <ChatEntry>[
     ChatEntry(
       prompt: 'What is Flutter?',
-      answers: <String>[
-        'Flutter is Google’s UI toolkit for building natively compiled applications.',
-        'It allows building apps for mobile, web, and desktop from a single codebase.',
-        'It allows building apps for mobile, web, and desktop from a single codebase.',
-        'Flutter is Google’s UI toolkit for building natively compiled applications.',
-        'Flutter is Google’s UI toolkit for building natively compiled applications.',
-        'It allows building apps for mobile, web, and desktop from a single codebase.',
-        'It allows building apps for mobile, web, and desktop from a single codebase.',
-        'Flutter is Google’s UI toolkit for building natively compiled applications.',
+      answers: <Answer>[
+        Answer(
+          id: 1,
+          text:
+              'Flutter is an open-source UI software development toolkit created by Google.',
+          imageUrls: <String>[
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+          ],
+          pointsAnswers: StaticDeclarations.samplePoints.take(7).toList(),
+        ),
       ],
       sources: <Source>[
         Source(
@@ -403,13 +408,20 @@ class DashboardController extends GetxController
     ),
     ChatEntry(
       prompt: 'How do sticky headers work?',
-      answers: <String>[
-        'Sticky headers remain pinned to the top while their section is visible.',
-        'This creates a smooth scrolling experience for grouped content.',
-        'Sticky headers remain pinned to the top while their section is visible.',
-        'This creates a smooth scrolling experience for grouped content.',
-        'Sticky headers remain pinned to the top while their section is visible.',
-        'This creates a smooth scrolling experience for grouped content.',
+      answers: <Answer>[
+        Answer(
+          id: 1,
+          text:
+              'Sticky headers are a UI pattern where headers remain visible at the top of the viewport as you scroll through content.',
+          imageUrls: <String>[
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+          ],
+          pointsAnswers: StaticDeclarations.samplePoints..sublist(6),
+        ),
       ],
       sources: <Source>[
         Source(
@@ -441,13 +453,20 @@ class DashboardController extends GetxController
     ),
     ChatEntry(
       prompt: 'Is this statically coded?',
-      answers: <String>[
-        'Yes, this is a demonstration using statically defined data.',
-        'In production, you would typically fetch data dynamically.',
-        'Yes, this is a demonstration using statically defined data.',
-        'In production, you would typically fetch data dynamically.',
-        'Yes, this is a demonstration using statically defined data.',
-        'In production, you would typically fetch data dynamically.',
+      answers: <Answer>[
+        Answer(
+          id: 1,
+          text: 'Yes, this is statically coded.',
+          imageUrls: <String>[
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200/300',
+          ],
+          pointsAnswers: StaticDeclarations.samplePoints.take(5).toList(),
+        ),
       ],
       sources: <Source>[
         Source(
@@ -479,13 +498,18 @@ class DashboardController extends GetxController
     ),
     ChatEntry(
       prompt: 'What is Dart?',
-      answers: <String>[
-        'Dart is a client-optimized language for fast apps on any platform.',
-        'It is used as the programming language for Flutter apps.',
-        'Dart is a client-optimized language for fast apps on any platform.',
-        'It is used as the programming language for Flutter apps.',
-        'Dart is a client-optimized language for fast apps on any platform.',
-        'It is used as the programming language for Flutter apps.',
+      answers: <Answer>[
+        Answer(
+          id: 1,
+          text:
+              'Dart is a programming language optimized for building mobile, desktop, server, and web applications.',
+          imageUrls: <String>[
+            'https://picsum.photos/200/300',
+            'https://picsum.photos/200',
+            'https://picsum.photos/200/300',
+          ],
+          pointsAnswers: StaticDeclarations.samplePoints.take(3).toList(),
+        ),
       ],
       sources: <Source>[
         Source(

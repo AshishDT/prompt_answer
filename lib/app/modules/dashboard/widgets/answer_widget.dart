@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/chat_model.dart';
 
@@ -16,22 +18,179 @@ class AnswerWidget extends StatelessWidget {
 
   /// Scroll key
   final Key scrollKey;
+
   @override
   Widget build(BuildContext context) => Padding(
         key: scrollKey,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List<Widget>.generate(
             entry.answers.length,
-            (i) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                entry.answers[i],
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
+            (int i) {
+              final Answer answer = entry.answers[i];
+
+              final bool hasText = answer.text?.trim().isNotEmpty ?? false;
+              final bool hasImages = answer.imageUrls?.isNotEmpty ?? false;
+              final bool hasPoints = answer.pointsAnswers?.isNotEmpty ?? false;
+
+              if (!hasText && !hasImages && !hasPoints) {
+                return 8.verticalSpace;
+              }
+
+              return Padding(
+                padding: REdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (hasText) ...<Widget>[
+                      Padding(
+                        padding: REdgeInsets.only(bottom: 8),
+                        child: Text(
+                          answer.text!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (hasImages) ...<Widget>[
+                      10.verticalSpace,
+                      Padding(
+                        padding: REdgeInsets.only(bottom: 12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: answer.imageUrls!
+                              .map(
+                                (String url) => _imageWidget(url),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                    if (hasPoints) ...<Widget>[
+                      10.verticalSpace,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: answer.pointsAnswers!
+                            .map(
+                              (PointsAnswers pa) => Padding(
+                                padding: REdgeInsets.only(bottom: 12),
+                                child: _pointAnswerWidget(pa),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
           ),
         ),
       );
+
+  /// Image widget with rounded corners
+  ClipRRect _imageWidget(String url) => ClipRRect(
+        borderRadius: BorderRadius.circular(8).r,
+        child: Image.network(
+          url,
+          width: 100.w,
+          height: 100.h,
+          fit: BoxFit.cover,
+          loadingBuilder: (
+            BuildContext context,
+            Widget child,
+            ImageChunkEvent? loadingProgress,
+          ) {
+            if (loadingProgress == null) return child;
+
+            return Container(
+              width: 100.w,
+              height: 100.h,
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        (loadingProgress.expectedTotalBytes ?? 1)
+                    : null,
+              ),
+            );
+          },
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) =>
+                  Container(
+            width: 100.w,
+            height: 100.h,
+            color: Colors.grey.shade200,
+            alignment: Alignment.center,
+            child: const Icon(Icons.broken_image, color: Colors.grey),
+          ),
+        ),
+      );
+
+  /// Point answer widget
+  Widget _pointAnswerWidget(PointsAnswers pa) {
+    if (!_pointNotEmpty(pa) && !_declarationNotEmpty(pa)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: REdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: REdgeInsets.only(top: 2),
+            child: Text(
+              '•',
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          8.horizontalSpace,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_pointNotEmpty(pa))
+                  Text(
+                    pa.point!,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                if (_declarationNotEmpty(pa))
+                  Padding(
+                    padding: REdgeInsets.only(top: 4),
+                    child: Text(
+                      pa.declaration!,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Point not empty check
+  bool _pointNotEmpty(PointsAnswers pa) => (pa.point ?? '').isNotEmpty;
+
+  /// Declaration not empty check
+  bool _declarationNotEmpty(PointsAnswers pa) =>
+      (pa.declaration ?? '').isNotEmpty;
 }

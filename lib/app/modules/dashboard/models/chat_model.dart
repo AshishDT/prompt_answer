@@ -33,11 +33,53 @@ class ChatEntry {
   final String prompt;
 
   /// Answer for the chat entry
-  final List<String> answers;
+  final List<Answer> answers;
 
   /// List of sources associated with the chat entry
   final List<Source> sources;
 
   /// Optional key for the chat entry
   GlobalKey? key;
+}
+
+/// Answer
+class Answer {
+  /// Constructor for Answer
+  Answer({
+    required this.id,
+    this.text,
+    this.imageUrls,
+    this.pointsAnswers,
+  });
+
+  /// Id of the answer
+  final int id;
+
+  /// Text of the answer
+  final String? text;
+
+  /// Optional image URL associated with the answer
+  final List<String>? imageUrls;
+
+  /// PointsAnswers associated with the answer
+  final List<PointsAnswers>? pointsAnswers;
+}
+
+/// QuestionAnswers model representing a question with associated answers
+class PointsAnswers {
+  /// Constructor for Question
+  PointsAnswers({
+    required this.id,
+    this.point,
+    this.declaration,
+  });
+
+  /// Id of the question
+  final int id;
+
+  /// Text of the question
+  final String? point;
+
+  /// List of answers associated with the question
+  final String? declaration;
 }

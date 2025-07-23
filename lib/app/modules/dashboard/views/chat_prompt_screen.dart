@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/tab_item.dart';
 import '../models/chat_model.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -54,9 +56,9 @@ class ChatPromptSection extends StatelessWidget {
             children: <Widget>[
               Text(
                 chatEntry.prompt,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.poppins(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),

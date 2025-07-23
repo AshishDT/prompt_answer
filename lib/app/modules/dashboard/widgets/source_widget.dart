@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/chat_model.dart';
 
@@ -20,34 +22,37 @@ class SourceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         key: scrollKey,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           children: List<Widget>.generate(
             entry.sources.length,
             (int i) {
               final Source source = entry.sources[i];
               return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: REdgeInsets.only(bottom: 8),
                 child: Row(
                   children: <Widget>[
-                    const Icon(Icons.link, size: 24),
-                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.link,
+                      size: 24.sp,
+                    ),
+                    12.horizontalSpace,
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
                             source.title,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          4.verticalSpace,
                           Text(
                             source.url,
-                            style: const TextStyle(
-                              fontSize: 14,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
                               color: Colors.grey,
                             ),
                           ),
