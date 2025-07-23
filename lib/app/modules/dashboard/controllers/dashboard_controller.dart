@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
+import 'package:nigerian_igbo/app/data/config/logger.dart';
 
 import '../models/chat_model.dart';
 import '../models/tab_item.dart';
@@ -65,7 +66,7 @@ class DashboardController extends GetxController
   /// Initializes tabs for each chat entry
   void _initializeTabs() {
     // Dispose existing tab controllers
-    for (final controller in tabControllers.values) {
+    for (final TabController controller in tabControllers.values) {
       controller.dispose();
     }
 
@@ -91,12 +92,15 @@ class DashboardController extends GetxController
       );
 
       final List<TabItem> tabs = <TabItem>[];
-      final List<GlobalKey<State<StatefulWidget>>> contentKeyList = [];
+      final List<GlobalKey<State<StatefulWidget>>> contentKeyList =
+          <GlobalKey<State<StatefulWidget>>>[];
 
       // Unique key for Answer tab content
       if (entry.answers.isNotEmpty) {
-        final GlobalKey<State<StatefulWidget>> key = GlobalKey<State<StatefulWidget>>(
-          debugLabel: 'content_answer_${i}_${DateTime.now().microsecondsSinceEpoch}',
+        final GlobalKey<State<StatefulWidget>> key =
+            GlobalKey<State<StatefulWidget>>(
+          debugLabel:
+              'content_answer_${i}_${DateTime.now().microsecondsSinceEpoch}',
         );
         contentKeyList.add(key);
         tabs.add(
@@ -112,8 +116,10 @@ class DashboardController extends GetxController
 
       // Unique key for Sources tab content
       if (entry.sources.isNotEmpty) {
-        final key = GlobalKey<State<StatefulWidget>>(
-          debugLabel: 'content_sources_${i}_${DateTime.now().microsecondsSinceEpoch}',
+        final GlobalKey<State<StatefulWidget>> key =
+            GlobalKey<State<StatefulWidget>>(
+          debugLabel:
+              'content_sources_${i}_${DateTime.now().microsecondsSinceEpoch}',
         );
         contentKeyList.add(key);
         tabs.add(
@@ -139,34 +145,41 @@ class DashboardController extends GetxController
         tabItems[i] = tabs;
         tabIndices[i] = 0.obs;
 
-        controller.addListener(() {
-          if (controller.indexIsChanging) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final BuildContext? headerContext = headerKeys[i]?.currentContext;
-              final GlobalKey<State<StatefulWidget>>? contentKey =
-              contentKeys[i]?[controller.index];
+        controller.addListener(
+          () {
+            if (controller.indexIsChanging) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) {
+                  final BuildContext? headerContext =
+                      headerKeys[i]?.currentContext;
+                  final GlobalKey<State<StatefulWidget>>? contentKey =
+                      contentKeys[i]?[controller.index];
 
-              final bool isPinned = _isHeaderPinned(headerContext);
+                  final bool isPinned = _isHeaderPinned(headerContext);
 
+                  if (isPinned) {
+                    if (contentKey != null) {
+                      scrollToRevealContent(contentKey);
+                    }
+                  } else {
+                    scrollToPrompt(headerKeys[i]!);
+                  }
+                },
+              );
 
-              if (isPinned) {
-                if (contentKey != null) {
-                  scrollToRevealContent(contentKey);
-                }
-              } else {
-                scrollToPrompt(headerKeys[i]!);
-              }
-            });
-
-            tabIndices[i]?.value = controller.index;
-          }
-        });
+              tabIndices[i]?.value = controller.index;
+            }
+          },
+        );
       }
     }
   }
 
+  /// Is the header pinned?
   bool _isHeaderPinned(BuildContext? context) {
-    if (context == null) return false;
+    if (context == null) {
+      return false;
+    }
 
     final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null) {
@@ -174,20 +187,20 @@ class DashboardController extends GetxController
     }
 
     final RenderObject? scrollRenderBox =
-    scrollController.position.context.storageContext.findRenderObject();
+        scrollController.position.context.storageContext.findRenderObject();
     if (scrollRenderBox == null) {
       return false;
     }
 
-    final double headerOffset = renderBox
-        .localToGlobal(Offset.zero, ancestor: scrollRenderBox)
-        .dy;
+    final double headerOffset =
+        renderBox.localToGlobal(Offset.zero, ancestor: scrollRenderBox).dy;
 
     final double scrollOffset = scrollController.offset;
 
     final bool pinned = headerOffset <= 0 || headerOffset <= kToolbarHeight;
 
-    debugPrint('👾 [PINNED CHECK] headerOffset=$headerOffset, scrollOffset=$scrollOffset → pinned=$pinned');
+    logWTF(
+        '👾 [PINNED CHECK] headerOffset=$headerOffset, scrollOffset=$scrollOffset → pinned=$pinned');
 
     return pinned;
   }
@@ -240,7 +253,8 @@ class DashboardController extends GetxController
         const double pinnedHeaderHeight = kToolbarHeight + 32;
 
         if (contentTop < pinnedHeaderHeight) {
-          final double targetOffset = scrollOffset + (contentTop - pinnedHeaderHeight);
+          final double targetOffset =
+              scrollOffset + (contentTop - pinnedHeaderHeight);
 
           scrollController.animateTo(
             targetOffset.clamp(
