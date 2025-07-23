@@ -31,19 +31,41 @@ class DashboardController extends GetxController
     super.onClose();
   }
 
+  /// Scroll controller for the chat list
+  final ScrollController scrollController = ScrollController();
+
   /// Tab controllers, indices, and items
   final Map<int, TabController> tabControllers = <int, TabController>{};
 
   /// Tab indices for each chat entry
   final Map<int, RxInt> tabIndices = <int, RxInt>{};
 
+  /// Prompt keys for each chat entry
+  final Map<int, GlobalKey> promptKeys =
+      <int, GlobalKey<State<StatefulWidget>>>{};
+
+  final Map<int, GlobalKey> headerKeys = <int, GlobalKey<State<StatefulWidget>>>{};
+
+
+  /// Initializes prompt keys for each chat entry
+  void initializeKeys() {
+    for (int i = 0; i < chatEntries.length; i++) {
+      promptKeys[i] = GlobalKey(debugLabel: 'chat_prompt_$i');
+      headerKeys[i] = GlobalKey(debugLabel: 'chat_header_$i');
+    }
+  }
+
   /// Tab items for each chat entry
   final Map<int, List<TabItem>> tabItems = <int, List<TabItem>>{};
 
   /// Initializes tabs for each chat entry
   void _initializeTabs() {
+    initializeKeys();
+
     for (int i = 0; i < chatEntries.length; i++) {
-      final ChatEntry entry = chatEntries[i];
+      final ChatEntry entry = chatEntries[i]
+        ..key = GlobalKey(debugLabel: 'ChatEntryKey_$i');
+
       final List<TabItem> tabs = <TabItem>[];
 
       final ChatEntry safeEntry = ChatEntry(
@@ -79,12 +101,43 @@ class DashboardController extends GetxController
         tabItems[i] = tabs;
         tabIndices[i] = 0.obs;
 
-        controller.addListener(
-          () {
-            if (controller.indexIsChanging) {
-              tabIndices[i]?.value = controller.index;
-            }
-          },
+        controller.addListener(() {
+          if (controller.indexIsChanging) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) {
+                final GlobalKey<State<StatefulWidget>>? key = promptKeys[i];
+                if (key != null) {
+                  scrollToPrompt(headerKeys[i]!);
+                }
+              },
+            );
+            tabIndices[i]?.value = controller.index;
+          }
+        });
+      }
+    }
+  }
+
+  /// Scrolls to the prompt of a chat entry
+  void scrollToPrompt(GlobalKey key) {
+    final BuildContext? context = key.currentContext;
+    final BuildContext scrollContext = scrollController.position.context.storageContext;
+    final RenderObject? scrollRenderObject = scrollContext.findRenderObject();
+
+    if (context != null && scrollRenderObject != null) {
+      final RenderObject? renderBox = context.findRenderObject();
+      if (renderBox is RenderBox) {
+        final double offset = renderBox.localToGlobal(
+          Offset.zero,
+          ancestor: scrollRenderObject,
+        ).dy;
+
+        final double scrollOffset = scrollController.offset + offset;
+
+        scrollController.animateTo(
+          scrollOffset,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
         );
       }
     }

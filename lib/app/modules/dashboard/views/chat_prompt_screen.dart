@@ -12,6 +12,8 @@ class ChatPromptSection extends StatelessWidget {
     required this.tabs,
     required this.tabController,
     required this.currentTabIndex,
+    required this.sectionKey,
+    required this.headerKey,
     super.key,
   });
 
@@ -27,9 +29,16 @@ class ChatPromptSection extends StatelessWidget {
   /// Current index of the selected tab
   final int currentTabIndex;
 
+  /// Key for the section, used for scrolling and identification
+  final GlobalKey sectionKey;
+
+  final GlobalKey headerKey;
+
   @override
   Widget build(BuildContext context) => SliverStickyHeader(
+    key: sectionKey,
     header: Container(
+      key: headerKey,
       color: Colors.white,
       padding: const EdgeInsets.all(12),
       child: Column(

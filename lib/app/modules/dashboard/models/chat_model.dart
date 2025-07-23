@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 /// Source model representing a source of information
 class Source {
   /// Constructor for Source
@@ -24,6 +26,7 @@ class ChatEntry {
     required this.prompt,
     required this.answers,
     required this.sources,
+    this.key,
   });
 
   /// Prompt for the chat entry
@@ -34,4 +37,7 @@ class ChatEntry {
 
   /// List of sources associated with the chat entry
   final List<Source> sources;
+
+  /// Optional key for the chat entry
+  GlobalKey? key;
 }

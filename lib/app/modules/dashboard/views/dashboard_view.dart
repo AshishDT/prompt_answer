@@ -32,9 +32,12 @@ class DashboardView extends GetView<DashboardController> {
           ),
           child: Obx(
             () => CustomScrollView(
+              controller: controller.scrollController,
               slivers: List<Widget>.generate(
                 controller.chatEntries().length,
-                (i) => ChatPromptSection(
+                (int i) => ChatPromptSection(
+                  sectionKey: controller.promptKeys[i]!,
+                  headerKey: controller.headerKeys[i]!,
                   chatEntry: controller.chatEntries()[i],
                   tabs: controller.tabItems[i] ?? [],
                   tabController: controller.tabControllers[i],
