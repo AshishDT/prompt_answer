@@ -15,7 +15,7 @@ class AnswerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.only(left: 12,right: 12, top: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List<Widget>.generate(

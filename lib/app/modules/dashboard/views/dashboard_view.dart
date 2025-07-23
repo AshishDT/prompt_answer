@@ -14,7 +14,11 @@ class DashboardView extends GetView<DashboardController> {
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: AppColors.kffffff,
         appBar: AppBar(
+          foregroundColor: AppColors.kffffff,
+          shadowColor: AppColors.kffffff,
+          surfaceTintColor: AppColors.kffffff,
           backgroundColor: AppColors.kffffff,
+          elevation: 0,
           title: Text(
             'Chat UI',
             style: GoogleFonts.poppins(
