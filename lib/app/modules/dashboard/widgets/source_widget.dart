@@ -26,12 +26,36 @@ class SourceWidget extends StatelessWidget {
             entry.sources.length,
             (int i) {
               final Source source = entry.sources[i];
-              return ListTile(
-                title: Text(source.title),
-                subtitle: Text(source.url),
-                leading: const Icon(Icons.link),
-                contentPadding: EdgeInsets.zero,
-                onTap: () {},
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: <Widget>[
+                    const Icon(Icons.link, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            source.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            source.url,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
