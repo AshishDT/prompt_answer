@@ -26,8 +26,13 @@ class ChatEntry {
     required this.prompt,
     required this.answers,
     required this.sources,
+    required this.id,
+    this.like = - 1,
     this.key,
   });
+
+  /// Optional id for the chat entry
+  final String id;
 
   /// Prompt for the chat entry
   final String prompt;
@@ -40,6 +45,26 @@ class ChatEntry {
 
   /// Optional key for the chat entry
   GlobalKey? key;
+
+  /// Is liked
+  int like;
+
+  /// Copy with method to create a copy of the ChatEntry with modified properties
+  ChatEntry copyWith({
+    String? prompt,
+    List<Answer>? answers,
+    List<Source>? sources,
+    String? id,
+    int? like,
+    GlobalKey? key,
+  }) => ChatEntry(
+      prompt: prompt ?? this.prompt,
+      answers: answers ?? this.answers,
+      sources: sources ?? this.sources,
+      id: id ?? this.id,
+      like: like ?? this.like,
+      key: key ?? this.key,
+    );
 }
 
 /// Answer

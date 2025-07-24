@@ -135,7 +135,7 @@ class AnswerWidget extends StatelessWidget {
                               onThumbUp: () {
                                 onThumbUp?.call(entry);
                               },
-                              selected: 0,
+                              selected: entry.like,
                             ),
                             12.horizontalSpace,
                             GestureDetector(
