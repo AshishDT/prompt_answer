@@ -1,282 +1,542 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:nigerian_igbo/app/modules/dashboard/controllers/prompt_search_mixin.dart';
-import '../models/chat_model.dart';
+import 'package:nigerian_igbo/app/data/config/logger.dart';
+import '../models/chat_event.dart';
+import '../models/source_link.dart';
+import '../models/keyword_link.dart';
 import '../models/tab_item.dart';
-import '../repositories/static_declarations.dart' show StaticDeclarations;
-import '../widgets/answer_widget.dart';
-import '../widgets/source_widget.dart';
-import 'package:uuid/uuid.dart';
+import '../repositories/html_cleaner.dart';
+import '../views/dynamic_source.dart';
 
-/// Dashboard controller
-class DashboardController extends GetxController
-    with GetTickerProviderStateMixin, PromptSearchMixin {
-  /// On init
-  @override
-  void onInit() {
-    _initializeTabs();
-    super.onInit();
-  }
+/// Combined mixin that handles HTML stream parsing, event processing, and stream handling
+class DashboardController extends GetxController with GetTickerProviderStateMixin {
+  /// Reactive list that gets updated as events stream in
+  final RxList<ChatEventModel> chatEvent = <ChatEventModel>[].obs;
 
-  /// On ready
-  @override
-  void onReady() {
-    super.onReady();
-  }
+  /// Internal buffer for message-type events (can be joined)
+  final StringBuffer _messageBuffer = StringBuffer();
 
-  /// On close
+  /// Scroll controller for the chat view
+  final ScrollController scrollController = ScrollController();
+
+  /// Text editing controller for the chat input field
+  final TextEditingController chatInputController = TextEditingController();
+
+  /// Writing state for when content is being streamed/written
+  final RxBool isWriting = false.obs;
+
+  /// Tab controllers, indices, and items for dynamic chat events
+  final Map<int, TabController> tabControllers = <int, TabController>{};
+  final Map<int, RxInt> tabIndices = <int, RxInt>{};
+  final Map<int, GlobalKey> promptKeys = <int, GlobalKey<State<StatefulWidget>>>{};
+  final Map<int, GlobalKey> headerKeys = <int, GlobalKey<State<StatefulWidget>>>{};
+  final Map<int, List<GlobalKey>> contentKeys = <int, List<GlobalKey>>{};
+  final Map<int, List<TabItem>> tabItems = <int, List<TabItem>>{};
+
+  /// Expose message buffer for other mixins
+  StringBuffer get messageBuffer => _messageBuffer;
+
   @override
   void onClose() {
     for (final TabController controller in tabControllers.values) {
       controller.dispose();
     }
+    scrollController.dispose();
+    chatInputController.dispose();
     super.onClose();
   }
 
-  /// Tab controllers, indices, and items
-  final Map<int, TabController> tabControllers = <int, TabController>{};
-
-  /// Tab indices for each chat entry
-  final Map<int, RxInt> tabIndices = <int, RxInt>{};
-
-  /// Prompt keys for each chat entry
-  final Map<int, GlobalKey> promptKeys =
-      <int, GlobalKey<State<StatefulWidget>>>{};
-
-  /// Header keys for each chat entry
-  final Map<int, GlobalKey> headerKeys =
-      <int, GlobalKey<State<StatefulWidget>>>{};
-
-  /// Keys for tab content of each chat entry
-  final Map<int, List<GlobalKey>> contentKeys = <int, List<GlobalKey>>{};
-
-  /// Initializes prompt keys for each chat entry
-  void initializeKeys() {
-    for (int i = 0; i < chatEntries.length; i++) {
-      // Assign a unique GlobalKey for the prompt (text) in section i
-      promptKeys[i] = GlobalKey(debugLabel: 'chat_prompt_$i');
-
-      // Assign a unique GlobalKey for the header widget in section i
-      headerKeys[i] = GlobalKey(debugLabel: 'chat_header_$i');
+  /// Create initial tabs structure when request starts
+  void _createInitialTabsForEvent(int eventIndex, String prompt) {
+    // Create keys for this event if they don't exist
+    if (!promptKeys.containsKey(eventIndex)) {
+      promptKeys[eventIndex] = GlobalKey(debugLabel: 'chat_prompt_$eventIndex');
     }
-  }
-
-  /// Tab items for each chat entry
-  final Map<int, List<TabItem>> tabItems = <int, List<TabItem>>{};
-
-  /// Initializes tabs for each chat entry
-  void _initializeTabs() {
-    for (final TabController controller in tabControllers.values) {
-      controller.dispose();
+    if (!headerKeys.containsKey(eventIndex)) {
+      headerKeys[eventIndex] = GlobalKey(debugLabel: 'chat_header_$eventIndex');
     }
 
-    // Clear all previously stored data (controllers, keys, etc.)
-    tabItems.clear();
-    tabControllers.clear();
-    tabIndices.clear();
-    contentKeys.clear();
-    promptKeys.clear();
-    headerKeys.clear();
+    final ChatEventModel event = chatEvent[eventIndex];
+    final List<TabItem> tabs = <TabItem>[];
+    final List<GlobalKey<State<StatefulWidget>>> contentKeyList = <GlobalKey<State<StatefulWidget>>>[];
 
-    initializeKeys();
+    // ALWAYS create Answer tab with fixed key
+    final GlobalKey<State<StatefulWidget>> answerKey = GlobalKey<State<StatefulWidget>>(
+      debugLabel: 'content_answer_${eventIndex}_fixed',
+    );
+    contentKeyList.add(answerKey);
+    tabs.add(
+      TabItem(
+        label: 'Answer',
+        builder: () => DynamicAnswerWidget(
+          scrollKey: answerKey,
+          chatEvent: event,
+          eventIndex: eventIndex,
+          onThumbUp: _onThumbsUp,
+          onThumbDown: _onThumbsDown,
+          onCopy: _copyChatEventContent,
+        ),
+      ),
+    );
 
-    for (int i = 0; i < chatEntries.length; i++) {
-      final ChatEntry entry = chatEntries[i]
-        ..key = GlobalKey(debugLabel: 'ChatEntryKey_$i');
+    // ALWAYS create Sources tab with fixed key (even if empty initially)
+    final GlobalKey<State<StatefulWidget>> sourcesKey = GlobalKey<State<StatefulWidget>>(
+      debugLabel: 'content_sources_${eventIndex}_fixed',
+    );
+    contentKeyList.add(sourcesKey);
+    tabs.add(
+      TabItem(
+        label: 'Sources',
+        builder: () => DynamicSourceWidget(
+          scrollKey: sourcesKey,
+          chatEvent: event,
+        ),
+      ),
+    );
 
-      final List<TabItem> tabs = <TabItem>[];
-      final List<GlobalKey<State<StatefulWidget>>> contentKeyList =
-          <GlobalKey<State<StatefulWidget>>>[];
+    // Save keys and tabs
+    contentKeys[eventIndex] = contentKeyList;
+    tabItems[eventIndex] = tabs;
 
-      if (entry.answers.isNotEmpty) {
-        final GlobalKey<State<StatefulWidget>> key =
-            GlobalKey<State<StatefulWidget>>(
-          debugLabel:
-              'content_answer_${i}_${DateTime.now().microsecondsSinceEpoch}',
-        );
-        contentKeyList.add(key);
-        tabs.add(
-          TabItem(
-            label: 'Answer',
-            builder: () => AnswerWidget(
-              scrollKey: key,
-              entry: entry,
-              onThumbUp: _onThumbsUp,
-              onThumbDown: _onThumbsDown,
-              onCopy: _copyChatEntryContent,
-              onShare: _onShareChatEntry,
-            ),
-          ),
-        );
-      }
+    // Create TabController
+    final TabController controller = TabController(
+      length: tabs.length,
+      vsync: this,
+    );
+    tabControllers[eventIndex] = controller;
+    tabIndices[eventIndex] = 0.obs;
 
-      if (entry.sources.isNotEmpty) {
-        final GlobalKey<State<StatefulWidget>> key =
-            GlobalKey<State<StatefulWidget>>(
-          debugLabel:
-              'content_sources_${i}_${DateTime.now().microsecondsSinceEpoch}',
-        );
-        contentKeyList.add(key);
-        tabs.add(
-          TabItem(
-            label: 'Sources',
-            builder: () => SourceWidget(
-              scrollKey: key,
-              entry: entry,
-            ),
-          ),
-        );
-      }
+    controller.addListener(() {
+      if (controller.indexIsChanging) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final BuildContext? headerContext = headerKeys[eventIndex]?.currentContext;
+          final GlobalKey<State<StatefulWidget>>? contentKey = contentKeys[eventIndex]?[controller.index];
+          final bool isPinned = _isHeaderPinned(headerContext);
 
-      contentKeys[i] = contentKeyList;
-
-      if (tabs.isNotEmpty) {
-        final TabController controller = TabController(
-          length: tabs.length,
-          vsync: this,
-        );
-        tabControllers[i] = controller;
-        tabItems[i] = tabs;
-        tabIndices[i] = 0.obs;
-
-        controller.addListener(
-          () {
-            if (controller.indexIsChanging) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) {
-                  final BuildContext? headerContext =
-                      headerKeys[i]?.currentContext;
-
-                  final GlobalKey<State<StatefulWidget>>? contentKey =
-                      contentKeys[i]?[controller.index];
-
-                  final bool isPinned = _isHeaderPinned(headerContext);
-
-                  if (isPinned) {
-                    if (contentKey != null) {
-                      scrollToRevealContent(contentKey);
-                    }
-                  } else {
-                    scrollToPrompt(headerKeys[i]!);
-                  }
-                },
-              );
-
-              // Update the selected tab index reactively
-              tabIndices[i]?.value = controller.index;
+          if (isPinned) {
+            if (contentKey != null) {
+              scrollToRevealContent(contentKey);
             }
-          },
-        );
+          } else {
+            scrollToPrompt(headerKeys[eventIndex]!);
+          }
+        });
+
+        tabIndices[eventIndex]?.value = controller.index;
+      }
+    });
+
+    logWTF('Created initial tabs for event $eventIndex with prompt: $prompt');
+  }
+
+  /// Update existing tabs content when new data arrives
+  void _updateTabsContent(int eventIndex) {
+    // Don't recreate tabs, just update the content
+    // The TabItem builders will automatically reflect the updated chatEvent data
+    // since they reference the same ChatEventModel instance
+
+    // Force UI refresh
+    chatEvent.refresh();
+
+    logWTF('Updated tabs content for event $eventIndex');
+  }
+
+  /// Loads streamed response from server and maps it to ChatEventModel
+  Future<void> loadStreamedHtmlContent() async {
+    final String prompt = chatInputController.text.trim();
+    if (prompt.isEmpty) {
+      return;
+    }
+
+    chatInputController.clear();
+    _messageBuffer.clear();
+    isWriting.value = true;
+
+    // Create new chat event with the prompt
+    final ChatEventModel newEvent = ChatEventModel();
+    newEvent.promptKeyword = prompt; // Store the original prompt
+    chatEvent.add(newEvent);
+
+    final int currentEventIndex = chatEvent.length - 1;
+
+    // IMMEDIATELY create tabs structure with the prompt (before API call)
+    _createInitialTabsForEvent(currentEventIndex, prompt);
+
+    final String encodedPrompt = Uri.encodeComponent(prompt);
+    final String url = _buildApiUrl(encodedPrompt);
+
+    final Dio dio = Dio();
+
+    try {
+      final Response<ResponseBody> response = await dio.get<ResponseBody>(
+        url,
+        options: Options(responseType: ResponseType.stream),
+      );
+
+      await processStream(response.data!.stream);
+    } on DioException catch (e) {
+      logWTF('PromptSearchMixin: DioException: ${e.message}');
+    } catch (e) {
+      logWTF('PromptSearchMixin: Exception: $e');
+    } finally {
+      isWriting.value = false;
+    }
+  }
+
+  /// Builds the API URL with encoded prompt
+  String _buildApiUrl(String encodedPrompt) => 'https://stagingapi.search.com/search'
+      '?prompt=$encodedPrompt'
+      '&nt=0'
+      '&key=JiMmNjQ_OS43PSE,'
+      '&auth=Iw,,'
+      '&sub='
+      '&currentChatId=chat_6881d4beb6c0b'
+      '&is_image='
+      '&image_url='
+      '&space_id='
+      '&source_link_res=true'
+      '&uid=YUlRZGNaMzRDVGx5ekg0TXgwSU5zQT09';
+
+  /// Scrolls to bottom of the chat view
+  void scrollToBottom() {
+    // Implementation commented out as in original
+  }
+
+  /// Process stream from byte stream
+  Future<void> processStream(Stream<List<int>> byteStream) async {
+    final Stream<String> lines = byteStream
+        .cast<List<int>>()
+        .transform(utf8.decoder)
+        .expand((String chunk) => const LineSplitter().convert(chunk));
+
+    String? currentEvent;
+
+    await for (final String line in lines) {
+      if (line.startsWith('event:')) {
+        currentEvent = line.replaceFirst('event:', '').trim();
+        logWTF('PromptSearchMixin: New event received: $currentEvent');
+      } else if (line.startsWith('data:')) {
+        final String rawData = line.replaceFirst('data:', '').trim();
+        if (currentEvent == null || rawData.isEmpty) {
+          logWTF('PromptSearchMixin: Skipping empty event or data line');
+          continue;
+        }
+        handleEvent(currentEvent, rawData);
       }
     }
   }
 
-  /// Handles thumbs down action on a chat entry
-  void _onThumbsUp(ChatEntry entry) {
-    final int index = chatEntries.indexWhere((ChatEntry e) => e.id == entry.id);
-    if (index != -1) {
-      final ChatEntry updated = chatEntries[index].copyWith(like: 0);
-      chatEntries[index] = updated;
-      chatEntries.refresh();
-      _initializeTabs();
+  /// Main event handler - now updates existing tabs instead of recreating them
+  void handleEvent(String event, String rawData) {
+    switch (event) {
+      case 'message':
+        if (messageBuffer.isEmpty && chatEvent.isEmpty) {
+          chatEvent.add(ChatEventModel());
+        }
+        _handleMessageEvent(rawData);
+        break;
+      case 'message_complete':
+        break;
+      case 'sourceLinks':
+      case 'TestsourceLinks':
+        _handleSourceLinksEvent(rawData);
+        break;
+      case 'keywords':
+        _handleKeywordsEvent(rawData);
+        break;
+      case 'Brands':
+        _handleBrandsEvent(rawData);
+        break;
+      case 'followUpQuestions':
+        _handleFollowUpQuestionsEvent(rawData);
+        break;
+      case 'Prompt Keyword':
+        _handlePromptKeywordEvent(rawData);
+        break;
+      case 'ChatHistoryId':
+        _handleChatHistoryIdEvent(rawData);
+        break;
+      case 'not_safe':
+        _handleNotSafeEvent();
+        break;
+      case 'dataDone':
+      case 'end':
+        messageBuffer.clear();
+        isWriting.value = false;
+        break;
+      default:
+        logWTF('PromptSearchMixin: Unrecognized event: $event');
+    }
+
+    // Update tabs content after each event (without recreating tabs)
+    if (chatEvent.isNotEmpty) {
+      final int currentEventIndex = chatEvent.length - 1;
+      _updateTabsContent(currentEventIndex);
     }
   }
 
-  /// Handles thumbs up action on a chat entry
-  void _onThumbsDown(ChatEntry entry) {
-    final int index = chatEntries.indexWhere((ChatEntry e) => e.id == entry.id);
-    if (index != -1) {
-      final ChatEntry updated = chatEntries[index].copyWith(like: 1);
-      chatEntries[index] = updated;
-      chatEntries.refresh();
-      _initializeTabs();
+  void _handleMessageEvent(String rawData) {
+    final String cleaned = HtmlCleaner.clean(rawData);
+    if (_isJsonResponse(cleaned)) {
+      _handleJsonResponse(cleaned);
+    } else {
+      _handleHtmlStreaming(cleaned);
     }
   }
 
-  /// Copies the content of a chat entry to the clipboard
-  void _copyChatEntryContent(ChatEntry entry) {
+  bool _isJsonResponse(String data) {
+    final String trimmed = data.trim();
+    if (trimmed.startsWith('``````')) {
+      return true;
+    }
+    if (trimmed.startsWith('{')) {
+      try {
+        final json = jsonDecode(trimmed);
+        return json.containsKey('ai_response') ||
+            json.containsKey('topKeywords') ||
+            json.containsKey('is_safe');
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  void _handleJsonResponse(String rawData) {
+    try {
+      final String cleanData = rawData.replaceAll('``````', '').trim();
+      final Map<String, dynamic> jsonResponse = jsonDecode(cleanData);
+
+      if (chatEvent.isNotEmpty) {
+        final ChatEventModel currentEvent = chatEvent.last;
+
+        if (jsonResponse.containsKey('ai_response')) {
+          final String htmlContent = jsonResponse['ai_response'] as String;
+          final String cleanedHtml = HtmlCleaner.cleanHtmlContent(htmlContent);
+          currentEvent.html.clear();
+          currentEvent.html.write(cleanedHtml);
+        }
+
+        if (jsonResponse.containsKey('topKeywords')) {
+          final List<dynamic> keywords = jsonResponse['topKeywords'] as List<dynamic>;
+          currentEvent.keywords = keywords
+              .map((k) => KeywordLink(keyword: k.toString(), url: ''))
+              .toList();
+        }
+
+        if (jsonResponse.containsKey('followUpQuestions')) {
+          final List<dynamic> questions = jsonResponse['followUpQuestions'] as List<dynamic>;
+          currentEvent.followUpQuestions = questions.cast<String>();
+        }
+
+        if (jsonResponse.containsKey('promptKeywords')) {
+          currentEvent.promptKeyword = jsonResponse['promptKeywords'] as String;
+        }
+
+        if (jsonResponse.containsKey('brands')) {
+          final List<dynamic> brands = jsonResponse['brands'] as List<dynamic>;
+          currentEvent.brands = brands.cast<String>();
+        }
+
+        if (jsonResponse.containsKey('chatHistoryId')) {
+          currentEvent.chatHistoryId = jsonResponse['chatHistoryId'] as String;
+        }
+
+        chatEvent.refresh();
+      }
+
+      messageBuffer.clear();
+      scrollToBottom();
+    } catch (e) {
+      logWTF('PromptSearchMixin: Error parsing JSON: $e');
+      _handleHtmlStreaming(rawData);
+    }
+  }
+
+  void _handleHtmlStreaming(String cleanedData) {
+    messageBuffer.write(cleanedData);
+    final String htmlContent = HtmlCleaner.cleanHtmlContent(messageBuffer.toString());
+
+    if (chatEvent.isNotEmpty) {
+      final ChatEventModel currentEvent = chatEvent.last;
+      currentEvent.html.clear();
+      currentEvent.html.write(htmlContent);
+      chatEvent.refresh();
+    }
+
+    scrollToBottom();
+  }
+
+  void _handleSourceLinksEvent(String rawData) {
+    final String cleaned = HtmlCleaner.clean(rawData);
+    try {
+      if (cleaned.trimLeft().startsWith('[')) {
+        final List<dynamic> jsonList = jsonDecode(cleaned);
+        final List<SourceLink> links = jsonList.map((e) => SourceLink.fromJson(e)).toList();
+        if (chatEvent.isNotEmpty) {
+          final ChatEventModel currentEvent = chatEvent.last;
+          currentEvent.sourceLinks = <SourceLink>[...currentEvent.sourceLinks, ...links];
+          chatEvent.refresh();
+        }
+      } else {
+        if (chatEvent.isNotEmpty) {
+          final ChatEventModel currentEvent = chatEvent.last;
+          currentEvent.html.write(cleaned);
+          chatEvent.refresh();
+        }
+      }
+    } catch (e) {
+      if (chatEvent.isNotEmpty) {
+        final ChatEventModel currentEvent = chatEvent.last;
+        currentEvent.html.write(cleaned);
+        chatEvent.refresh();
+      }
+    }
+    scrollToBottom();
+  }
+
+  void _handleKeywordsEvent(String rawData) {
+    try {
+      final String cleaned = HtmlCleaner.clean(rawData);
+      final List<dynamic> jsonList = jsonDecode(cleaned);
+      final List<KeywordLink> keys = jsonList.map((e) => KeywordLink.fromJson(e)).toList();
+
+      if (chatEvent.isNotEmpty) {
+        final ChatEventModel currentEvent = chatEvent.last;
+        currentEvent.keywords = <KeywordLink>[...currentEvent.keywords, ...keys];
+        chatEvent.refresh();
+      }
+    } catch (e) {
+      logWTF('PromptSearchMixin: Error parsing keywords: $e');
+    }
+    scrollToBottom();
+  }
+
+  void _handleBrandsEvent(String rawData) {
+    try {
+      final String cleaned = HtmlCleaner.clean(rawData);
+      final List<dynamic> brands = jsonDecode(cleaned);
+
+      if (chatEvent.isNotEmpty) {
+        final ChatEventModel currentEvent = chatEvent.last;
+        currentEvent.brands = <String>[...currentEvent.brands, ...brands.cast<String>()];
+        chatEvent.refresh();
+      }
+    } catch (e) {
+      logWTF('PromptSearchMixin: Error parsing brands: $e');
+    }
+    scrollToBottom();
+  }
+
+  void _handleFollowUpQuestionsEvent(String rawData) {
+    try {
+      final String cleaned = HtmlCleaner.clean(rawData);
+      final List<dynamic> questions = jsonDecode(cleaned);
+
+      if (chatEvent.isNotEmpty) {
+        final ChatEventModel currentEvent = chatEvent.last;
+        currentEvent.followUpQuestions = questions.cast<String>();
+        chatEvent.refresh();
+      }
+    } catch (e) {
+      logWTF('PromptSearchMixin: Error parsing followUpQuestions: $e');
+    }
+    scrollToBottom();
+  }
+
+  void _handlePromptKeywordEvent(String rawData) {
+    final String cleaned = HtmlCleaner.clean(rawData);
+    if (chatEvent.isNotEmpty) {
+      final ChatEventModel currentEvent = chatEvent.last;
+
+      // Only update if promptKeyword is not already set (preserve original user input)
+      if (currentEvent.promptKeyword == null || currentEvent.promptKeyword!.trim().isEmpty) {
+        currentEvent.promptKeyword = cleaned;
+        chatEvent.refresh();
+      }
+      // If already set, ignore the server's version to keep the original prompt
+    }
+    scrollToBottom();
+  }
+
+  void _handleChatHistoryIdEvent(String rawData) {
+    final String cleaned = HtmlCleaner.clean(rawData);
+    if (chatEvent.isNotEmpty) {
+      final ChatEventModel currentEvent = chatEvent.last;
+      currentEvent.chatHistoryId = cleaned;
+      chatEvent.refresh();
+    }
+    scrollToBottom();
+  }
+
+  void _handleNotSafeEvent() {
+    if (chatEvent.isNotEmpty) {
+      final ChatEventModel currentEvent = chatEvent.last;
+      currentEvent.html.clear();
+      currentEvent.html.write("⚠️ This content is restricted. Please log in to continue.");
+      chatEvent.refresh();
+    }
+    isWriting.value = false;
+    scrollToBottom();
+  }
+
+  // Tab management methods
+  void _onThumbsUp(ChatEventModel event, int index) {
+    logWTF('Thumbs up for event at index $index');
+  }
+
+  void _onThumbsDown(ChatEventModel event, int index) {
+    logWTF('Thumbs down for event at index $index');
+  }
+
+  void _copyChatEventContent(ChatEventModel event) {
     final StringBuffer buffer = StringBuffer()
       ..writeln('Prompt:')
-      ..writeln(entry.prompt)
+      ..writeln(event.promptKeyword ?? 'No prompt available')
+      ..writeln()
+      ..writeln('Answer:')
+      ..writeln(event.html.toString())
       ..writeln();
 
-    if (entry.answers.isNotEmpty) {
-      buffer.writeln('Answers:');
-
-      for (final Answer answer in entry.answers) {
-        if (answer.text?.isNotEmpty ?? false) {
-          buffer.writeln('- Text: ${answer.text}');
-        }
-
-        if (answer.imageUrls?.isNotEmpty ?? false) {
-          for (final String url in answer.imageUrls!) {
-            buffer.writeln('- Image: $url');
-          }
-        }
-
-        if (answer.pointsAnswers?.isNotEmpty ?? false) {
-          buffer.writeln('  • Points:');
-          for (final PointsAnswers point in answer.pointsAnswers!) {
-            if (point.point?.isNotEmpty ?? false) {
-              buffer.writeln('    - Point: ${point.point}');
-            }
-            if (point.declaration?.isNotEmpty ?? false) {
-              buffer.writeln('    - Declaration: ${point.declaration}');
-            }
-          }
-        }
-
-        buffer.writeln();
+    if (event.sourceLinks.isNotEmpty) {
+      buffer.writeln('Sources:');
+      for (final SourceLink source in event.sourceLinks) {
+        buffer.writeln('- ${source.title}: ${source.url}');
       }
     }
 
     Clipboard.setData(ClipboardData(text: buffer.toString()));
   }
 
-  /// Shares the content of a chat entry
-  void _onShareChatEntry(ChatEntry entry) {
+  void _onShareChatEvent(ChatEventModel event) {
     Clipboard.setData(
       ClipboardData(
-        text: entry.id,
+        text: event.chatHistoryId ?? 'No history ID',
       ),
     );
   }
 
-  /// Scrolls the main scroll view so that the given [key]'s widget (usually a section header)
-  /// Is the header pinned?
   bool _isHeaderPinned(BuildContext? context) {
-    if (context == null) {
-      return false;
-    }
+    if (context == null) return false;
 
     final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) {
-      return false;
-    }
+    if (renderBox == null) return false;
 
     final RenderObject? scrollRenderBox =
-        scrollController.position.context.storageContext.findRenderObject();
-    if (scrollRenderBox == null) {
-      return false;
-    }
+    scrollController.position.context.storageContext.findRenderObject();
+    if (scrollRenderBox == null) return false;
 
     final double headerOffset =
         renderBox.localToGlobal(Offset.zero, ancestor: scrollRenderBox).dy;
 
-    final bool pinned = headerOffset <= 0 || headerOffset <= kToolbarHeight;
-
-    return pinned;
+    return headerOffset <= 0 || headerOffset <= kToolbarHeight;
   }
 
-  /// is aligned to the top of the viewport (used when a header is not pinned yet).
-  /// This method scrolls the main scroll view to ensure that the widget associated with [key]
   void scrollToPrompt(GlobalKey key) {
     final BuildContext? context = key.currentContext;
-
-    final BuildContext scrollContext =
-        scrollController.position.context.storageContext;
-
+    final BuildContext scrollContext = scrollController.position.context.storageContext;
     final RenderObject? scrollRenderObject = scrollContext.findRenderObject();
 
     if (context != null && scrollRenderObject != null) {
@@ -298,13 +558,9 @@ class DashboardController extends GetxController
     }
   }
 
-  /// Scrolls to reveal content if it is cut off
   void scrollToRevealContent(GlobalKey contentKey) {
     final BuildContext? context = contentKey.currentContext;
-
-    final BuildContext scrollContext =
-        scrollController.position.context.storageContext;
-
+    final BuildContext scrollContext = scrollController.position.context.storageContext;
     final RenderObject? scrollRenderObject = scrollContext.findRenderObject();
 
     if (context != null && scrollRenderObject != null) {
@@ -337,194 +593,4 @@ class DashboardController extends GetxController
       }
     }
   }
-
-  /// Chat entries
-  final RxList<ChatEntry> chatEntries = <ChatEntry>[
-    ChatEntry(
-      id: const Uuid().v4(),
-      prompt: 'What is Flutter?',
-      answers: <Answer>[
-        Answer(
-          id: 1,
-          text:
-              'Flutter is an open-source UI software development toolkit created by Google.',
-          imageUrls: <String>[
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-          ],
-          pointsAnswers: StaticDeclarations.samplePoints.take(7).toList(),
-        ),
-      ],
-      sources: <Source>[
-        Source(
-          id: 1,
-          title: 'Flutter Official Documentation',
-          url: 'https://flutter.dev/docs',
-        ),
-        Source(
-          id: 2,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 3,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 4,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 5,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-      ],
-    ),
-    ChatEntry(
-      id: const Uuid().v4(),
-      prompt: 'How do sticky headers work?',
-      answers: <Answer>[
-        Answer(
-          id: 1,
-          text:
-              'Sticky headers are a UI pattern where headers remain visible at the top of the viewport as you scroll through content.',
-          imageUrls: <String>[
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-          ],
-          pointsAnswers: StaticDeclarations.samplePoints..sublist(6),
-        ),
-      ],
-      sources: <Source>[
-        Source(
-          id: 1,
-          title: 'Flutter Official Documentation',
-          url: 'https://flutter.dev/docs',
-        ),
-        Source(
-          id: 2,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 3,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 4,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 5,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-      ],
-    ),
-    ChatEntry(
-      id: const Uuid().v4(),
-      prompt: 'Is this statically coded?',
-      answers: <Answer>[
-        Answer(
-          id: 1,
-          text: 'Yes, this is statically coded.',
-          imageUrls: <String>[
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200/300',
-          ],
-          pointsAnswers: StaticDeclarations.samplePoints.take(5).toList(),
-        ),
-      ],
-      sources: <Source>[
-        Source(
-          id: 1,
-          title: 'Flutter Official Documentation',
-          url: 'https://flutter.dev/docs',
-        ),
-        Source(
-          id: 2,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 3,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 4,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 5,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-      ],
-    ),
-    ChatEntry(
-      id: const Uuid().v4(),
-      prompt: 'What is Dart?',
-      answers: <Answer>[
-        Answer(
-          id: 1,
-          text:
-              'Dart is a programming language optimized for building mobile, desktop, server, and web applications.',
-          imageUrls: <String>[
-            'https://picsum.photos/200/300',
-            'https://picsum.photos/200',
-            'https://picsum.photos/200/300',
-          ],
-          pointsAnswers: StaticDeclarations.samplePoints.take(3).toList(),
-        ),
-      ],
-      sources: <Source>[
-        Source(
-          id: 1,
-          title: 'Flutter Official Documentation',
-          url: 'https://flutter.dev/docs',
-        ),
-        Source(
-          id: 2,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 3,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 4,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 5,
-          title: 'Flutter GitHub',
-          url: 'https://github.com/flutter/flutter',
-        ),
-        Source(
-          id: 6,
-          title: 'Dart Packages',
-          url: 'https://pub.dev/',
-        ),
-      ],
-    ),
-  ].obs;
 }
