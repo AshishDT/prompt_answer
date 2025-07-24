@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:nigerian_igbo/app/modules/dashboard/controllers/html_data_mixin.dart';
-import 'package:nigerian_igbo/app/modules/dashboard/controllers/stream_handler_mixin.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/controllers/prompt_search_mixin.dart';
 import '../models/chat_model.dart';
 import '../models/tab_item.dart';
 import '../repositories/static_declarations.dart' show StaticDeclarations;
@@ -10,15 +9,9 @@ import '../widgets/answer_widget.dart';
 import '../widgets/source_widget.dart';
 import 'package:uuid/uuid.dart';
 
-import 'event_processor_mixin.dart';
-
 /// Dashboard controller
 class DashboardController extends GetxController
-    with
-        GetTickerProviderStateMixin,
-        HtmlDataMixin,
-        StreamHandlerMixin,
-        EventProcessorMixin {
+    with GetTickerProviderStateMixin, PromptSearchMixin {
   /// On init
   @override
   void onInit() {
