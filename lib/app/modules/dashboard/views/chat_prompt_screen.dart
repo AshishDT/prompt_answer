@@ -49,7 +49,7 @@ class ChatPromptSection extends StatelessWidget {
               ),
             ),
           ),
-          padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+          padding: REdgeInsets.only(left: 12, right: 12, top: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

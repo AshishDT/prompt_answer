@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/models/tab_item.dart';
 import '../controllers/dashboard_controller.dart';
+import '../widgets/custom_chat_field.dart';
 import 'chat_prompt_screen.dart';
 
 /// Dashboard View
@@ -13,43 +15,65 @@ class DashboardView extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) => Scaffold(
         backgroundColor: AppColors.kffffff,
-        appBar: AppBar(
-          foregroundColor: AppColors.kffffff,
-          shadowColor: AppColors.kffffff,
-          surfaceTintColor: AppColors.kffffff,
-          backgroundColor: AppColors.kffffff,
-          elevation: 0,
-          title: Text(
-            'Chat UI',
-            style: GoogleFonts.poppins(
-              color: AppColors.k000000,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-          child: Obx(
-            () => CustomScrollView(
-              controller: controller.scrollController,
-              slivers: List<Widget>.generate(
-                controller.chatEntries().length,
-                (int i) => ChatPromptSection(
-                  sectionKey: controller.promptKeys[i]!,
-                  headerKey: controller.headerKeys[i]!,
-                  chatEntry: controller.chatEntries()[i],
-                  tabs: controller.tabItems[i] ?? [],
-                  tabController: controller.tabControllers[i],
-                  currentTabIndex: controller.tabIndices[i]?.value ?? 0,
+        extendBody: true,
+        body: Stack(
+          children: <Widget>[
+            Padding(
+              padding: REdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 40,
+              ),
+              child: Obx(
+                () => CustomScrollView(
+                  controller: controller.scrollController,
+                  slivers: <Widget>[
+                    ...List<Widget>.generate(
+                      controller.chatEntries().length * 2 - 1,
+                      (int i) {
+                        final bool isDivider = i.isOdd;
+                        final int index = i ~/ 2;
+
+                        if (isDivider) {
+                          return SliverToBoxAdapter(
+                            child: Padding(
+                              padding: REdgeInsets.only(bottom: 20),
+                              child: Divider(
+                                color: Colors.grey.shade300,
+                                thickness: 1,
+                                height: 1,
+                              ),
+                            ),
+                          );
+                        }
+
+                        return ChatPromptSection(
+                          sectionKey: controller.promptKeys[index]!,
+                          headerKey: controller.headerKeys[index]!,
+                          chatEntry: controller.chatEntries()[index],
+                          tabs: controller.tabItems[index] ?? <TabItem>[],
+                          tabController: controller.tabControllers[index],
+                          currentTabIndex:
+                              controller.tabIndices[index]?.value ?? 0,
+                        );
+                      },
+                    ),
+                    SliverToBoxAdapter(
+                      child: 120.verticalSpace,
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
+
+            // Pinned chat input
+            const Positioned(
+              left: 16,
+              right: 16,
+              bottom: 0,
+              child: CustomChatInput(),
+            ),
+          ],
         ),
       );
 }

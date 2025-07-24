@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/icon_widget.dart';
 
 import '../models/chat_model.dart';
+import 'like_unlike_widget.dart';
 
 /// Answer Widget
 class AnswerWidget extends StatelessWidget {
@@ -84,6 +86,46 @@ class AnswerWidget extends StatelessWidget {
                             .toList(),
                       ),
                     ],
+                    10.verticalSpace,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconWidget(
+                          icon: Icons.share,
+                          name: 'Share',
+                          radius: 40,
+                          iconSize: 20.sp,
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                          ),
+                          padding: REdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            LikeUnlikeWidget(
+                              onThumbDown: () {},
+                              onThumbUp: () {},
+                              selected: 0,
+                            ),
+                            12.horizontalSpace,
+                            GestureDetector(
+                              onTap: () {},
+                              child: Icon(
+                                Icons.copy,
+                                size: 20.sp,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    )
                   ],
                 ),
               );
