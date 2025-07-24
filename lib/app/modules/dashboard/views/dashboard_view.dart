@@ -68,8 +68,8 @@ class DashboardView extends GetView<DashboardController> {
 
             // Pinned chat input
             const Positioned(
-              left: 16,
-              right: 16,
+              left: 0,
+              right: 0,
               bottom: 0,
               child: CustomChatInput(),
             ),

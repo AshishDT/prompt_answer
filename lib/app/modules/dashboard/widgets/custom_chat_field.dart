@@ -10,15 +10,35 @@ class CustomChatInput extends StatelessWidget {
   const CustomChatInput({super.key});
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         padding: REdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,
         ),
-        margin: REdgeInsets.only(bottom: 20),
+        margin: REdgeInsets.only(
+          bottom: MediaQuery.of(context).viewPadding.bottom > 0
+              ? MediaQuery.of(context).systemGestureInsets.bottom
+              : 0,
+          left: MediaQuery.of(context).viewPadding.bottom > 0
+              ? 16
+              : 0,
+          right: MediaQuery.of(context).viewPadding.bottom > 0
+              ? 16
+              : 0,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24).r,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(24),
+            topRight: const Radius.circular(24),
+            bottomLeft: MediaQuery.of(context).viewPadding.bottom > 0
+                ? const Radius.circular(24)
+                : Radius.zero,
+            bottomRight: MediaQuery.of(context).viewPadding.bottom > 0
+                ? const Radius.circular(24)
+                : Radius.zero,
+          ).r,
           boxShadow: <BoxShadow>[
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
@@ -90,5 +110,4 @@ class CustomChatInput extends StatelessWidget {
           ],
         ),
       );
-
 }

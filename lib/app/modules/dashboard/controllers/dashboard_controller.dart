@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 import '../models/chat_model.dart';
 import '../models/tab_item.dart';
@@ -105,6 +106,8 @@ class DashboardController extends GetxController
               entry: entry,
               onThumbUp: _onThumbsUp,
               onThumbDown: _onThumbsDown,
+              onCopy: _copyChatEntryContent,
+              onShare: _onShareChatEntry,
             ),
           ),
         );
@@ -191,6 +194,55 @@ class DashboardController extends GetxController
       chatEntries.refresh();
       _initializeTabs();
     }
+  }
+
+  /// Copies the content of a chat entry to the clipboard
+  void _copyChatEntryContent(ChatEntry entry) {
+    final StringBuffer buffer = StringBuffer()
+      ..writeln('Prompt:')
+      ..writeln(entry.prompt)
+      ..writeln();
+
+    if (entry.answers.isNotEmpty) {
+      buffer.writeln('Answers:');
+
+      for (final Answer answer in entry.answers) {
+        if (answer.text?.isNotEmpty ?? false) {
+          buffer.writeln('- Text: ${answer.text}');
+        }
+
+        if (answer.imageUrls?.isNotEmpty ?? false) {
+          for (final String url in answer.imageUrls!) {
+            buffer.writeln('- Image: $url');
+          }
+        }
+
+        if (answer.pointsAnswers?.isNotEmpty ?? false) {
+          buffer.writeln('  • Points:');
+          for (final PointsAnswers point in answer.pointsAnswers!) {
+            if (point.point?.isNotEmpty ?? false) {
+              buffer.writeln('    - Point: ${point.point}');
+            }
+            if (point.declaration?.isNotEmpty ?? false) {
+              buffer.writeln('    - Declaration: ${point.declaration}');
+            }
+          }
+        }
+
+        buffer.writeln();
+      }
+    }
+
+    Clipboard.setData(ClipboardData(text: buffer.toString()));
+  }
+
+  /// Shares the content of a chat entry
+  void _onShareChatEntry(ChatEntry entry) {
+    Clipboard.setData(
+      ClipboardData(
+        text: entry.id,
+      ),
+    );
   }
 
   /// Scrolls the main scroll view so that the given [key]'s widget (usually a section header)
