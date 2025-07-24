@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../models/chat_model.dart';
+import '../models/chat_event.dart';
+import '../models/source_link.dart';
 
-/// Source Widget displays sources related to a chat entry
+/// Widget to display dynamic source links in a chat event
 class SourceWidget extends StatelessWidget {
-  /// Constructor for SourceWidget
+  /// Constructor for DynamicSourceWidget
   const SourceWidget({
-    required this.entry,
+    required this.chatEvent,
     required this.scrollKey,
     super.key,
   });
 
-  /// Entry containing the answers to display
-  final ChatEntry entry;
+  /// Chat event containing the dynamic data
+  final ChatEventModel chatEvent;
 
-  /// Scroll key for the widget
+  /// Key for the scrollable widget, used for scrolling and identification
   final Key scrollKey;
 
   @override
@@ -24,46 +25,39 @@ class SourceWidget extends StatelessWidget {
         key: scrollKey,
         padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
-          children: List<Widget>.generate(
-            entry.sources.length,
-            (int i) {
-              final Source source = entry.sources[i];
-              return Padding(
-                padding: REdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.link,
-                      size: 24.sp,
-                    ),
-                    12.horizontalSpace,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            source.title,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
+          children: chatEvent.sourceLinks
+              .map<Widget>((SourceLink source) => Padding(
+                    padding: REdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.link, size: 24.sp),
+                        12.horizontalSpace,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                source.title ?? '',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              4.verticalSpace,
+                              Text(
+                                source.url ?? '',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
-                          4.verticalSpace,
-                          Text(
-                            source.url,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14.sp,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
+                  ))
+              .toList(),
         ),
       );
 }

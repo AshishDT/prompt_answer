@@ -10,7 +10,8 @@ import '../models/source_link.dart';
 import '../models/keyword_link.dart';
 import '../models/tab_item.dart';
 import '../repositories/html_cleaner.dart';
-import '../views/dynamic_source.dart';
+import '../widgets/answer_widget.dart';
+import '../widgets/source_widget.dart';
 
 /// Combined mixin that handles HTML stream parsing, event processing, and stream handling
 class DashboardController extends GetxController with GetTickerProviderStateMixin {
@@ -72,7 +73,7 @@ class DashboardController extends GetxController with GetTickerProviderStateMixi
     tabs.add(
       TabItem(
         label: 'Answer',
-        builder: () => DynamicAnswerWidget(
+        builder: () => AnswerWidget(
           scrollKey: answerKey,
           chatEvent: event,
           eventIndex: eventIndex,
@@ -91,7 +92,7 @@ class DashboardController extends GetxController with GetTickerProviderStateMixi
     tabs.add(
       TabItem(
         label: 'Sources',
-        builder: () => DynamicSourceWidget(
+        builder: () => SourceWidget(
           scrollKey: sourcesKey,
           chatEvent: event,
         ),
@@ -510,23 +511,21 @@ class DashboardController extends GetxController with GetTickerProviderStateMixi
     Clipboard.setData(ClipboardData(text: buffer.toString()));
   }
 
-  void _onShareChatEvent(ChatEventModel event) {
-    Clipboard.setData(
-      ClipboardData(
-        text: event.chatHistoryId ?? 'No history ID',
-      ),
-    );
-  }
-
   bool _isHeaderPinned(BuildContext? context) {
-    if (context == null) return false;
+    if (context == null) {
+      return false;
+    }
 
     final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return false;
+    if (renderBox == null) {
+      return false;
+    }
 
     final RenderObject? scrollRenderBox =
     scrollController.position.context.storageContext.findRenderObject();
-    if (scrollRenderBox == null) return false;
+    if (scrollRenderBox == null) {
+      return false;
+    }
 
     final double headerOffset =
         renderBox.localToGlobal(Offset.zero, ancestor: scrollRenderBox).dy;
