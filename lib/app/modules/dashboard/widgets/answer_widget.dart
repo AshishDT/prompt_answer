@@ -12,6 +12,10 @@ class AnswerWidget extends StatelessWidget {
   const AnswerWidget({
     required this.entry,
     required this.scrollKey,
+    this.onShare,
+    this.onCopy,
+    this.onThumbUp,
+    this.onThumbDown,
     super.key,
   });
 
@@ -20,6 +24,18 @@ class AnswerWidget extends StatelessWidget {
 
   /// Scroll key
   final Key scrollKey;
+
+  /// Callbacks for various actions
+  final void Function(ChatEntry entry)? onShare;
+
+  /// Callback for copying the answer
+  final void Function(ChatEntry entry)? onCopy;
+
+  /// Callback for liking the answer
+  final void Function(ChatEntry entry)? onThumbUp;
+
+  /// Callback for disliking the answer
+  final void Function(ChatEntry entry)? onThumbDown;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -92,6 +108,9 @@ class AnswerWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         IconWidget(
+                          onTap: () {
+                            onShare?.call(entry);
+                          },
                           icon: Icons.share,
                           name: 'Share',
                           radius: 40,
@@ -110,13 +129,19 @@ class AnswerWidget extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             LikeUnlikeWidget(
-                              onThumbDown: () {},
-                              onThumbUp: () {},
+                              onThumbDown: () {
+                                onThumbDown?.call(entry);
+                              },
+                              onThumbUp: () {
+                                onThumbUp?.call(entry);
+                              },
                               selected: 0,
                             ),
                             12.horizontalSpace,
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                onCopy?.call(entry);
+                              },
                               child: Icon(
                                 Icons.copy,
                                 size: 20.sp,
