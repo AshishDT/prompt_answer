@@ -19,6 +19,8 @@ dependencies:
   pretty_dio_logger: ^1.4.0
   flutter_sticky_header: ^0.8.0
   google_fonts: ^6.2.1
+  flutter_html: ^3.0.0
+  html_unescape: ^2.0.0
   flutter:
     sdk: flutter
 

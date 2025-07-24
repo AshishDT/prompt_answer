@@ -7,7 +7,17 @@ import 'icon_widget.dart';
 /// Custom chat input widget for the dashboard
 class CustomChatInput extends StatelessWidget {
   /// Constructor for CustomChatInput
-  const CustomChatInput({super.key});
+  const CustomChatInput({
+    required this.controller,
+    super.key,
+    this.onSubmitted,
+  });
+
+  /// On submitted callback
+  final void Function()? onSubmitted;
+
+  /// Creates a controller for the text field
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) => AnimatedContainer(
@@ -20,12 +30,8 @@ class CustomChatInput extends StatelessWidget {
           bottom: MediaQuery.of(context).viewPadding.bottom > 0
               ? MediaQuery.of(context).systemGestureInsets.bottom
               : 0,
-          left: MediaQuery.of(context).viewPadding.bottom > 0
-              ? 16
-              : 0,
-          right: MediaQuery.of(context).viewPadding.bottom > 0
-              ? 16
-              : 0,
+          left: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
+          right: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
         ),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -53,6 +59,7 @@ class CustomChatInput extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextFormField(
+              controller: controller,
               style: GoogleFonts.poppins(
                 color: Colors.black54,
                 fontSize: 14.sp,
@@ -101,7 +108,11 @@ class CustomChatInput extends StatelessWidget {
                   ],
                 ),
                 10.horizontalSpace,
-                const IconWidget(
+                IconWidget(
+                  onTap: () {
+                    onSubmitted?.call();
+                    FocusScope.of(context).unfocus();
+                  },
                   icon: Icons.arrow_upward,
                   shape: BoxShape.circle,
                 )

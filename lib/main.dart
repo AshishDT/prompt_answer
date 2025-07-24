@@ -61,7 +61,6 @@ class StartTheApp extends StatelessWidget {
           fallbackLocale: const Locale('en_US'),
           defaultTransition: Transition.cupertino,
           theme: AppThemes.lightTheme,
-          darkTheme: AppThemes.darkTheme,
         ),
       );
 }
