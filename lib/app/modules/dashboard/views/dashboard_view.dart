@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 import 'package:nigerian_igbo/app/data/config/app_images.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/chat_event.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/typing_shimmer.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/tab_item.dart';
 import '../widgets/custom_chat_field.dart';
@@ -123,35 +124,14 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                   ],
 
-                  if (controller.isWriting.value)
-                    SliverToBoxAdapter(
+                  if (controller.isWriting())...<Widget>[
+                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: <Widget>[
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'AI is writing...',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontStyle: FontStyle.italic,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
+                        padding: REdgeInsets.only(left: 16),
+                        child: const TypingShimmer(),
                       ),
                     ),
+                  ],
 
                   // Extra bottom spacing
                   SliverToBoxAdapter(child: 200.verticalSpace),

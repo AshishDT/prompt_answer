@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -76,18 +77,37 @@ class AnswerWidget extends StatelessWidget {
                 ),
               ),
             ],
-
-            // HTML Content
-            if (chatEvent.html.toString().trim().isNotEmpty) ...[
+            if (chatEvent.html.toString().trim().isNotEmpty) ...<Widget>[
               Padding(
                 padding: REdgeInsets.only(bottom: 16),
                 child: Html(
                   data: chatEvent.html.toString(),
-                  // Add your HTML styling here
+                  extensions: <HtmlExtension>[
+                    _codeStyleExt(),
+                  ],
+                  style: <String, Style>{
+                    'body': Style(
+                      fontSize: FontSize(14.sp),
+                      color: Colors.black87,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontWeight: FontWeight.w500,
+                      display: Display.block,
+                    ),
+                    'pre': Style(
+                      backgroundColor: Colors.grey.shade200,
+                      color: Colors.black,
+                      fontSize: FontSize(12.sp),
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      padding: HtmlPaddings.all(12),
+                      whiteSpace: WhiteSpace.pre,
+                      display: Display.block,
+                      textAlign: TextAlign.left,
+                      alignment: Alignment.topLeft,
+                    ),
+                  },
                 ),
               ),
             ],
-
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -131,8 +151,6 @@ class AnswerWidget extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Follow-up Questions
             if (chatEvent.followUpQuestions.isNotEmpty) ...<Widget>[
               24.verticalSpace,
               Padding(
@@ -172,5 +190,58 @@ class AnswerWidget extends StatelessWidget {
             ],
           ],
         ),
+      );
+
+  /// Code style extension for HTML rendering
+  TagExtension _codeStyleExt() => TagExtension(
+        tagsToExtend: <String>{'pre'},
+        builder: (ExtensionContext context) {
+          final String codeText = context.element?.text.trim() ?? '';
+
+          return Container(
+            width: double.infinity,
+            margin: REdgeInsets.symmetric(vertical: 8),
+            padding: REdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12).r,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: codeText));
+                    },
+                    child: Icon(
+                      Icons.copy,
+                      color: Colors.black,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+                8.verticalSpace,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Text(
+                    codeText,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontSize: 13.sp,
+                      color: Colors.black,
+                      height: 1.6.h,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
 }
