@@ -16,25 +16,16 @@ class UrlCard extends StatelessWidget {
   final SourceLink source;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => InkWell(
         onTap: () {
           UrlLauncher.launch(
             url: source.url,
           );
         },
         child: Container(
-          padding: REdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: REdgeInsets.symmetric(vertical: 4),
           margin: REdgeInsets.only(
-            bottom: 4,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.shade300,
-                width: 1.w,
-              ),
-            ),
+            bottom: 8,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -51,16 +42,36 @@ class UrlCard extends StatelessWidget {
                 ),
                 8.horizontalSpace,
               ],
+              10.horizontalSpace,
               Expanded(
-                child: Text(
-                  source.url ?? '-',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    if (source.domain != null) ...<Widget>[
+                      Text(
+                        source.domain!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      4.verticalSpace,
+                    ],
+                    Text(
+                      source.url ?? '-',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

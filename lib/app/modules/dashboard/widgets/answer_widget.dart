@@ -3,6 +3,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
+import 'package:nigerian_igbo/app/utils/widget_ext.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
 import '../widgets/like_unlike_widget.dart';
@@ -54,11 +55,25 @@ class AnswerWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            6.verticalSpace,
             if (chatEvent.enginSource.isNotEmpty) ...<Widget>[
-              ...List<Widget>.generate(
-                chatEvent.enginSource.length,
-                (int index) => UrlCard(
-                  source: chatEvent.enginSource[index],
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12).r,
+                  color: Colors.grey.shade100,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ...List<Widget>.generate(
+                      chatEvent.enginSource.length,
+                      (int index) => UrlCard(
+                        source: chatEvent.enginSource[index],
+                      ).animate(position: index),
+                    )
+                  ],
                 ),
               ),
             ],

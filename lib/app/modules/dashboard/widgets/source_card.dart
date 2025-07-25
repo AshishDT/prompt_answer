@@ -16,7 +16,7 @@ class SourceCard extends StatelessWidget {
   final SourceLink source;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => InkWell(
         onTap: () {
           UrlLauncher.launch(
             url: source.url,
@@ -76,7 +76,7 @@ class SourceCard extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
-                            color: Colors.black54,
+                            color: Colors.blue,
                           ),
                         ),
                       ],
