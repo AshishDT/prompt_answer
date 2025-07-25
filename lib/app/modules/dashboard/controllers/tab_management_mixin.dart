@@ -38,6 +38,9 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
   /// Reactive list to manage the pinned states of headers
   final RxList<RxBool> pinnedStates = <RxBool>[].obs;
 
+  /// Reactive boolean to control the unstick behavior of the first section
+  final RxBool firstSectionShouldUnstick = false.obs;
+
   /// Load streamed content based on the prompt
   Future<void> loadStreamedContent(String prompt);
 

@@ -91,6 +91,11 @@ class DashboardController extends GetxController
   }
 
   void _onScroll() {
+    if (chatEvent.isNotEmpty) {
+      final bool isAtVeryTop = scrollController.offset <= 10;
+
+      firstSectionShouldUnstick.value = isAtVeryTop;
+    }
     for (int i = 0; i < headerKeys.length; i++) {
       final BuildContext? context = headerKeys[i]?.currentContext;
       final bool isPinned = isHeaderPinned(context);

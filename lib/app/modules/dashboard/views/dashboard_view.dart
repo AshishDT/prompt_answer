@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 import 'package:nigerian_igbo/app/data/config/app_images.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/chat_event.dart';
-import 'package:nigerian_igbo/app/modules/dashboard/widgets/typing_shimmer.dart';
 import '../controllers/dashboard_controller.dart';
 import '../models/tab_item.dart';
 import '../widgets/custom_chat_field.dart';
@@ -114,6 +113,9 @@ class DashboardView extends GetView<DashboardController> {
                           headerKey: controller.headerKeys[index]!,
                           isPinned: controller.pinnedStates[index](),
                           chatEvent: event,
+                          shouldStick: index > 0 ||
+                              !controller.firstSectionShouldUnstick.value,
+                          sectionIndex: index,
                           tabs: controller.tabItems[index] ?? <TabItem>[],
                           tabController: controller.tabControllers[index],
                           currentTabIndex:
