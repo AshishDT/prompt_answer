@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/models/keyword_link.dart';
 import '../../../data/config/logger.dart';
 import '../models/chat_event.dart';
 import '../models/source_link.dart';
 import '../models/tab_item.dart';
+import '../repositories/copy_content_repo.dart';
+import '../repositories/html_cleaner.dart';
 import '../widgets/answer_widget.dart';
 import '../widgets/source_widget.dart';
 
@@ -167,22 +170,7 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
 
   /// Copy chat event content to clipboard
   void copyChatEventContent(ChatEventModel event) {
-    final StringBuffer buffer = StringBuffer()
-      ..writeln('Prompt:')
-      ..writeln(event.promptKeyword ?? 'No prompt available')
-      ..writeln()
-      ..writeln('Answer:')
-      ..writeln(event.html.toString())
-      ..writeln();
-
-    if (event.sourceLinks.isNotEmpty) {
-      buffer.writeln('Sources:');
-      for (final SourceLink source in event.sourceLinks) {
-        buffer.writeln('- ${source.title}: ${source.url}');
-      }
-    }
-
-    Clipboard.setData(ClipboardData(text: buffer.toString()));
+    CopyContentRepo.copy(event);
   }
 
   /// Check if the header is pinned (i.e., visible at the top of the screen)
