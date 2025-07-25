@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/services/url_launcher.dart';
 import '../models/source_link.dart';
 
 /// UrlCard widget to display a card with URL information
@@ -17,13 +17,10 @@ class UrlCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: () async {
-          if (source.url != null) {
-            final Uri? uri = Uri.tryParse(source.url ?? '');
-            if (uri != null && await canLaunchUrl(uri)) {
-              await launchUrl(uri);
-            }
-          }
+        onTap: () {
+          UrlLauncher.launch(
+            url: source.url,
+          );
         },
         child: Container(
           padding: REdgeInsets.symmetric(horizontal: 8, vertical: 4),

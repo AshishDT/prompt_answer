@@ -156,7 +156,18 @@ class ChatEventHandler {
   void _handleKeywordsEvent(String rawData, ChatEventModel currentEvent) {
     try {
       final String cleaned = HtmlCleaner.clean(rawData);
-      final List<dynamic> jsonList = jsonDecode(cleaned);
+
+      final dynamic decoded = jsonDecode(cleaned);
+
+      if (decoded == null) {
+        return;
+      }
+
+      if (decoded is! List) {
+        return;
+      }
+
+      final List<dynamic> jsonList = decoded;
       final List<KeywordLink> keys =
           jsonList.map((dynamic e) => KeywordLink.fromJson(e)).toList();
       currentEvent.keywords = <KeywordLink>[...currentEvent.keywords, ...keys];
@@ -172,7 +183,16 @@ class ChatEventHandler {
       if (cleaned.isEmpty) {
         return;
       }
-      final List<dynamic> brands = jsonDecode(cleaned);
+      final dynamic decoded = jsonDecode(cleaned);
+
+      if (decoded == null) {
+        return;
+      }
+
+      if (decoded is! List) {
+        return;
+      }
+      final List<dynamic> brands = decoded;
       currentEvent.brands = <String>[
         ...currentEvent.brands,
         ...brands.cast<String>()
@@ -192,7 +212,17 @@ class ChatEventHandler {
         return;
       }
 
-      final List<dynamic> questions = jsonDecode(cleaned);
+      final dynamic decoded = jsonDecode(cleaned);
+
+      if (decoded == null) {
+        return;
+      }
+
+      if (decoded is! List) {
+        return;
+      }
+
+      final List<dynamic> questions = decoded;
       currentEvent.followUpQuestions = questions.cast<String>();
     } on Exception catch (e) {
       logWTF('ChatEventHandler: Error parsing followUpQuestions: $e');
@@ -246,7 +276,17 @@ class ChatEventHandler {
     final String cleaned = HtmlCleaner.clean(rawData);
     try {
       if (cleaned.trimLeft().startsWith('[')) {
-        final List<dynamic> jsonList = jsonDecode(cleaned);
+        final dynamic decoded = jsonDecode(cleaned);
+
+        if (decoded == null) {
+          return;
+        }
+
+        if (decoded is! List) {
+          return;
+        }
+
+        final List<dynamic> jsonList = decoded;
         final List<SourceLink> links =
             jsonList.map((dynamic e) => SourceLink.fromJson(e)).toList();
         currentEvent.sourceLinks = <SourceLink>[

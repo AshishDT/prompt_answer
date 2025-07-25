@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/source_card.dart';
+import 'package:nigerian_igbo/app/utils/widget_ext.dart';
 
 import '../models/chat_event.dart';
 import '../models/source_link.dart';
@@ -25,39 +27,12 @@ class SourceWidget extends StatelessWidget {
         key: scrollKey,
         padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
-          children: chatEvent.sourceLinks
-              .map<Widget>((SourceLink source) => Padding(
-                    padding: REdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: <Widget>[
-                        Icon(Icons.link, size: 24.sp),
-                        12.horizontalSpace,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                source.title ?? '',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              4.verticalSpace,
-                              Text(
-                                source.url ?? '',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ))
-              .toList(),
+          children: List<Widget>.generate(
+            chatEvent.sourceLinks.length,
+            (int index) => SourceCard(
+              source: chatEvent.sourceLinks[index],
+            ).animate(position: index),
+          ),
         ),
       );
 }

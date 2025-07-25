@@ -26,6 +26,7 @@ void appSnackbar({
       _snackbarIcon(snackbarState),
       color: Colors.white,
     ),
+    snackPosition: SnackPosition.TOP,
     margin: const EdgeInsets.all(8),
     messageText: Text(
       message,
