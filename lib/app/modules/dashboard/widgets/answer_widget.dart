@@ -3,7 +3,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
-import 'package:nigerian_igbo/app/utils/widget_ext.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
 import '../widgets/like_unlike_widget.dart';
@@ -16,7 +15,7 @@ class AnswerWidget extends StatelessWidget {
     required this.chatEvent,
     required this.eventIndex,
     required this.scrollKey,
-    this.onShare,
+    this.onReadOut,
     this.onCopy,
     this.onThumbUp,
     this.onThumbDown,
@@ -34,7 +33,7 @@ class AnswerWidget extends StatelessWidget {
   final Key scrollKey;
 
   /// Callbacks for various actions
-  final void Function(ChatEventModel event, int index)? onShare;
+  final void Function(ChatEventModel event, int index)? onReadOut;
 
   /// Callback when the copy icon is tapped
   final void Function(ChatEventModel event)? onCopy;
@@ -71,7 +70,7 @@ class AnswerWidget extends StatelessWidget {
                       chatEvent.enginSource.length,
                       (int index) => UrlCard(
                         source: chatEvent.enginSource[index],
-                      ).animate(position: index),
+                      ),
                     )
                   ],
                 ),
@@ -102,9 +101,9 @@ class AnswerWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     IconWidget(
-                      onTap: () => onShare?.call(chatEvent, eventIndex),
-                      icon: Icons.share,
-                      name: 'Share',
+                      onTap: () => onReadOut?.call(chatEvent, eventIndex),
+                      icon: Icons.mic,
+                      name: 'Read out',
                       radius: 40,
                       iconSize: 20.sp,
                       border: Border.all(color: Colors.grey.shade300),

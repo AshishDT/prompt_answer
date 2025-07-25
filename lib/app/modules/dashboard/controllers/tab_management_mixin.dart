@@ -81,6 +81,7 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
           onThumbDown: onThumbsDown,
           onCopy: copyChatEventContent,
           onFollowUpTap: onFollowUpQuestionTap,
+          onReadOut: onReadOut,
         ),
       ),
     );
@@ -139,6 +140,9 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
 
     logWTF('Created initial tabs for event $eventIndex with prompt: $prompt');
   }
+
+  /// On read out action for a chat event
+  void onReadOut(ChatEventModel event, int index) {}
 
   /// Handle follow-up question tap
   void onFollowUpQuestionTap(String question) {
