@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/controllers/dashboard_controller.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/keyword_link.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
 import '../widgets/like_unlike_widget.dart';
 
 /// Answer Widget to display dynamic answers in a chat event
-class AnswerWidget extends StatelessWidget {
+class AnswerWidget extends GetView<DashboardController> {
   /// Constructor for AnswerWidget
   const AnswerWidget({
     required this.chatEvent,
@@ -147,35 +149,50 @@ class AnswerWidget extends StatelessWidget {
               ),
 
             // Action buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconWidget(
-                  onTap: () => onShare?.call(chatEvent, eventIndex),
-                  icon: Icons.share,
-                  name: 'Share',
-                  radius: 40,
-                  iconSize: 20.sp,
-                  border: Border.all(color: Colors.grey.shade300),
-                  padding: REdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.bottomCenter,
+              child: Obx(
+                () => Visibility(
+                  visible: !controller.isWriting(),
+                  replacement: SizedBox(
+                    width: context.width,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      IconWidget(
+                        onTap: () => onShare?.call(chatEvent, eventIndex),
+                        icon: Icons.share,
+                        name: 'Share',
+                        radius: 40,
+                        iconSize: 20.sp,
+                        border: Border.all(color: Colors.grey.shade300),
+                        padding:
+                            REdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          LikeUnlikeWidget(
+                            onThumbDown: () =>
+                                onThumbDown?.call(chatEvent, eventIndex),
+                            onThumbUp: () =>
+                                onThumbUp?.call(chatEvent, eventIndex),
+                            selected:
+                                -1, // You may want to add a like property to ChatEventModel
+                          ),
+                          12.horizontalSpace,
+                          GestureDetector(
+                            onTap: () => onCopy?.call(chatEvent),
+                            child: Icon(Icons.copy, size: 20.sp),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Row(
-                  children: <Widget>[
-                    LikeUnlikeWidget(
-                      onThumbDown: () =>
-                          onThumbDown?.call(chatEvent, eventIndex),
-                      onThumbUp: () => onThumbUp?.call(chatEvent, eventIndex),
-                      selected:
-                          -1, // You may want to add a like property to ChatEventModel
-                    ),
-                    12.horizontalSpace,
-                    GestureDetector(
-                      onTap: () => onCopy?.call(chatEvent),
-                      child: Icon(Icons.copy, size: 20.sp),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ],
         ),
