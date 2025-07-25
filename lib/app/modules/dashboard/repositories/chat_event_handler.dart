@@ -275,7 +275,8 @@ class ChatEventHandler {
       String rawData, ChatEventModel currentEvent) {
     final String cleaned = HtmlCleaner.clean(rawData);
     try {
-      if (cleaned.trimLeft().startsWith('[')) {
+      if (cleaned.trimLeft().startsWith('[') &&
+          cleaned.trimRight().endsWith(']')) {
         final dynamic decoded = jsonDecode(cleaned);
 
         if (decoded == null) {
@@ -294,10 +295,10 @@ class ChatEventHandler {
           ...links
         ];
       } else {
-        currentEvent.html.write(cleaned);
+        log('ChatEventHandler: TestsourceLinks is not a valid JSON array, storing as HTML || $cleaned');
       }
-    } on Exception {
-      currentEvent.html.write(cleaned);
+    } on Exception catch (e) {
+      log('ChatEventHandler: Error parsing TestsourceLinks: $e || $cleaned');
     }
   }
 
