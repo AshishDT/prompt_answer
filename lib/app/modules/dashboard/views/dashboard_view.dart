@@ -20,10 +20,10 @@ class DashboardView extends GetView<DashboardController> {
         appBar: AppBar(
           surfaceTintColor: AppColors.kffffff,
           shadowColor: AppColors.kffffff,
-          leading: Icon(Icons.menu),
+          leading: const Icon(Icons.menu),
           foregroundColor: AppColors.kffffff,
           backgroundColor: AppColors.kffffff,
-          elevation: 5,
+          elevation: 1,
           title: Text(
             'Chat Prompts',
             style: GoogleFonts.inter(

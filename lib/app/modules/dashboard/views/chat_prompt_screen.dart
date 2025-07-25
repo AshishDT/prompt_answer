@@ -42,70 +42,71 @@ class ChatPromptSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SliverStickyHeader(
-    key: sectionKey,
-    header: Container(
-      key: headerKey,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.shade300,
+        key: sectionKey,
+        header: Container(
+          key: headerKey,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey.shade300,
+              ),
+            ),
+          ),
+          padding: REdgeInsets.only(left: 12, right: 12, top: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                prompt,
+                style: GoogleFonts.poppins(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (tabs.length > 1 && tabController != null) ...<Widget>[
+                TabBar(
+                  controller: tabController,
+                  dividerHeight: 0,
+                  padding: EdgeInsets.zero,
+                  isScrollable: true,
+                  splashBorderRadius: BorderRadius.zero,
+                  tabAlignment: TabAlignment.start,
+                  indicatorColor: Colors.black,
+                  labelColor: Colors.black,
+                  indicator: const UnderlineTabIndicator(
+                    borderSide: BorderSide(width: 2),
+                  ),
+                  unselectedLabelColor: Colors.grey,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  indicatorAnimation: TabIndicatorAnimation.elastic,
+                  labelPadding: const EdgeInsets.only(right: 30),
+                  tabs: tabs
+                      .map(
+                        (TabItem tab) => Tab(
+                          iconMargin: EdgeInsets.zero,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              const Icon(Icons.ac_unit_outlined, size: 16),
+                              const SizedBox(width: 6),
+                              Text(tab.label),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ],
           ),
         ),
-      ),
-      padding: REdgeInsets.only(left: 12, right: 12, top: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            prompt,
-            style: GoogleFonts.poppins(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          if (tabs.length > 1 && tabController != null)
-            TabBar(
-              controller: tabController,
-              dividerHeight: 0,
-              padding: EdgeInsets.zero,
-              isScrollable: true,
-              splashBorderRadius: BorderRadius.zero,
-              tabAlignment: TabAlignment.start,
-              indicatorColor: Colors.black,
-              labelColor: Colors.black,
-              indicator: const UnderlineTabIndicator(
-                borderSide: BorderSide(width: 2),
-              ),
-              unselectedLabelColor: Colors.grey,
-              indicatorSize: TabBarIndicatorSize.label,
-              indicatorAnimation: TabIndicatorAnimation.elastic,
-              labelPadding: const EdgeInsets.only(right: 30),
-              tabs: tabs
-                  .map(
-                    (TabItem tab) => Tab(
-                  iconMargin: EdgeInsets.zero,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Icon(Icons.ac_unit_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Text(tab.label),
-                    ],
-                  ),
-                ),
-              )
-                  .toList(),
-            ),
-        ],
-      ),
-    ),
-    sliver: SliverToBoxAdapter(
-      child: tabs.length == 1
-          ? tabs[0].builder()
-          : tabs[currentTabIndex].builder(),
-    ),
-  );
+        sliver: SliverToBoxAdapter(
+          child: tabs.length == 1
+              ? tabs[0].builder()
+              : tabs[currentTabIndex].builder(),
+        ),
+      );
 }
