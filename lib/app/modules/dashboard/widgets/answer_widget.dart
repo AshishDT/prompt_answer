@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
@@ -163,7 +164,7 @@ class AnswerWidget extends StatelessWidget {
                         Icon(
                           Icons.menu_book_outlined,
                           size: 25.sp,
-                          color: Colors.black,
+                           color: AppColors.k364958,
                         ),
                         10.horizontalSpace,
                         Text(
@@ -171,6 +172,7 @@ class AnswerWidget extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
+                            color: AppColors.k364958,
                           ),
                         ),
                       ],
