@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/tab_item.dart';
 import '../models/chat_event.dart';
@@ -118,9 +119,15 @@ class ChatPromptSection extends StatelessWidget {
           ),
         ),
         sliver: SliverToBoxAdapter(
-          child: tabs.length == 1
-              ? tabs[0].builder()
-              : tabs[currentTabIndex].builder(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  chatEvent.isStreamComplete ?? false ? 0 : context.height,
+            ),
+            child: tabs.length == 1
+                ? tabs[0].builder()
+                : tabs[currentTabIndex].builder(),
+          ),
         ),
       );
 }

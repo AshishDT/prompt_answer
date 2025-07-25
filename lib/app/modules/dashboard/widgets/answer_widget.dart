@@ -4,6 +4,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/typing_shimmer.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
@@ -58,23 +59,27 @@ class AnswerWidget extends StatelessWidget {
           children: <Widget>[
             6.verticalSpace,
             if (chatEvent.enginSource.isNotEmpty) ...<Widget>[
-              AnimatedContainer(
+              AnimatedSize(
                 duration: const Duration(milliseconds: 300),
-                padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12).r,
-                  color: Colors.grey.shade100,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ...List<Widget>.generate(
-                      chatEvent.enginSource.length,
-                      (int index) => UrlCard(
-                        source: chatEvent.enginSource[index],
-                      ),
-                    )
-                  ],
+                curve: Curves.easeInOut,
+                alignment: Alignment.topLeft,
+                child: Container(
+                  padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12).r,
+                    color: Colors.grey.shade100,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ...List<Widget>.generate(
+                        chatEvent.enginSource.length,
+                        (int index) => UrlCard(
+                          source: chatEvent.enginSource[index],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -188,6 +193,13 @@ class AnswerWidget extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ],
+
+            if (!(chatEvent.isStreamComplete ?? false))...<Widget>[
+              Padding(
+                padding: REdgeInsets.only(left: 16),
+                child: const TypingShimmer(),
               ),
             ],
           ],

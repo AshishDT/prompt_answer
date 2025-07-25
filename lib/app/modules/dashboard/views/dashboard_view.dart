@@ -124,15 +124,6 @@ class DashboardView extends GetView<DashboardController> {
                     ),
                   ],
 
-                  if (controller.isWriting())...<Widget>[
-                     SliverToBoxAdapter(
-                      child: Padding(
-                        padding: REdgeInsets.only(left: 16),
-                        child: const TypingShimmer(),
-                      ),
-                    ),
-                  ],
-
                   // Extra bottom spacing
                   SliverToBoxAdapter(child: 200.verticalSpace),
                 ],

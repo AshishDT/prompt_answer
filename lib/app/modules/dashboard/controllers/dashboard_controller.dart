@@ -118,6 +118,13 @@ class DashboardController extends GetxController
 
     final int currentEventIndex = chatEvent.length - 1;
     createInitialTabsForEvent(currentEventIndex, prompt);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final GlobalKey? headerKey = headerKeys[currentEventIndex];
+      if (headerKey != null) {
+        scrollToPrompt(headerKey);
+      }
+    });
   }
 
   /// Handles search API specific errors
