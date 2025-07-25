@@ -36,6 +36,9 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
   /// Reactive list of chat events that will be updated dynamically
   RxList<ChatEventModel> get chatEvent;
 
+  /// Reactive list to manage the pinned states of headers
+  final RxList<RxBool> pinnedStates = <RxBool>[].obs;
+
   /// Load streamed content based on the prompt
   Future<void> loadStreamedContent(String prompt);
 
@@ -107,6 +110,10 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
     );
     tabControllers[eventIndex] = controller;
     tabIndices[eventIndex] = 0.obs;
+
+    if (pinnedStates.length <= eventIndex) {
+      pinnedStates.add(false.obs);
+    }
 
     controller.addListener(() {
       if (controller.indexIsChanging) {

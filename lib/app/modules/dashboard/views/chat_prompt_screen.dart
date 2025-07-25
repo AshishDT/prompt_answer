@@ -16,6 +16,7 @@ class ChatPromptSection extends StatelessWidget {
     required this.sectionKey,
     required this.headerKey,
     required this.prompt,
+    this.isPinned = false,
     super.key,
   });
 
@@ -40,10 +41,15 @@ class ChatPromptSection extends StatelessWidget {
   /// The prompt text to display in the header
   final String prompt;
 
+  /// Is pinned state for the header
+  final bool isPinned;
+
   @override
   Widget build(BuildContext context) => SliverStickyHeader(
         key: sectionKey,
-        header: Container(
+        header: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           key: headerKey,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -58,11 +64,16 @@ class ChatPromptSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                prompt,
-                style: GoogleFonts.poppins(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w500,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                child: Text(
+                  prompt,
+                  maxLines: isPinned ? 1 : null,
+                  overflow: isPinned ? TextOverflow.ellipsis : null,
+                  style: GoogleFonts.poppins(
+                    fontSize: isPinned ? 18.sp : 26.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),

@@ -40,7 +40,6 @@ class DashboardView extends GetView<DashboardController> {
               () => CustomScrollView(
                 controller: controller.scrollController,
                 slivers: <Widget>[
-                  SliverToBoxAdapter(child: 16.verticalSpace),
                   ...List<Widget>.generate(
                     controller.chatEvent.length * 2 -
                         (controller.chatEvent.isEmpty ? 0 : 1),
@@ -72,6 +71,7 @@ class DashboardView extends GetView<DashboardController> {
                       return ChatPromptSection(
                         sectionKey: controller.promptKeys[index]!,
                         headerKey: controller.headerKeys[index]!,
+                        isPinned: controller.pinnedStates[index](),
                         chatEvent: event,
                         tabs: controller.tabItems[index] ?? <TabItem>[],
                         tabController: controller.tabControllers[index],

@@ -40,6 +40,9 @@ class DashboardController extends GetxController
   @override
   void onInit() {
     super.onInit();
+
+    scrollController.addListener(_onScroll);
+
     _eventHandler = ChatEventHandler(
       messageBuffer: _messageBuffer,
       onEventUpdated: _handleEventUpdated,
@@ -84,6 +87,23 @@ class DashboardController extends GetxController
       _handleSearchError(e);
     } finally {
       isWriting.value = false;
+    }
+  }
+
+  void _onScroll() {
+    for (int i = 0; i < headerKeys.length; i++) {
+      final BuildContext? context = headerKeys[i]?.currentContext;
+      final bool isPinned = isHeaderPinned(context);
+
+      if (pinnedStates.length > i) {
+        final RxBool pinnedState = pinnedStates[i];
+
+        if (isPinned && !pinnedState.value) {
+          pinnedState.value = true;
+        } else if (!isPinned && pinnedState.value) {
+          pinnedState.value = false;
+        }
+      }
     }
   }
 
