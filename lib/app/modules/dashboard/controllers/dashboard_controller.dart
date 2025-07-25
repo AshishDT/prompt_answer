@@ -54,9 +54,22 @@ class DashboardController extends GetxController
     super.onClose();
   }
 
+  @override
+  Future<void> loadStreamedContent(String prompt) async {
+    await loadStreamedHtmlContent(specialPrompt: prompt);
+  }
+
   /// Loads streamed response from server and maps it to ChatEventModel
-  Future<void> loadStreamedHtmlContent() async {
-    final String prompt = chatInputController.text.trim();
+  Future<void> loadStreamedHtmlContent({
+    String? specialPrompt,
+  }) async {
+    String prompt = '';
+
+    if (specialPrompt != null && specialPrompt.isNotEmpty) {
+      prompt = specialPrompt.trim();
+    } else {
+      prompt = chatInputController.text.trim();
+    }
 
     if (prompt.isEmpty) {
       return;

@@ -36,6 +36,9 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
   /// Reactive list of chat events that will be updated dynamically
   RxList<ChatEventModel> get chatEvent;
 
+  /// Load streamed content based on the prompt
+  Future<void> loadStreamedContent(String prompt);
+
   @override
   void onClose() {
     for (final TabController controller in tabControllers.values) {
@@ -74,6 +77,7 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
           onThumbUp: onThumbsUp,
           onThumbDown: onThumbsDown,
           onCopy: copyChatEventContent,
+          onFollowUpTap: onFollowUpQuestionTap,
         ),
       ),
     );
@@ -127,6 +131,16 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
     });
 
     logWTF('Created initial tabs for event $eventIndex with prompt: $prompt');
+  }
+
+  /// Handle follow-up question tap
+  void onFollowUpQuestionTap(String question) {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent + 200,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    loadStreamedContent(question);
   }
 
   /// Update existing tabs content when new data arrives

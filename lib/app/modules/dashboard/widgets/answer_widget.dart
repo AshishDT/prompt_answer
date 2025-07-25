@@ -6,6 +6,7 @@ import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
 import '../models/chat_event.dart';
 import '../widgets/icon_widget.dart';
 import '../widgets/like_unlike_widget.dart';
+import 'follow_up_card.dart';
 
 /// Answer Widget to display dynamic answers in a chat event
 class AnswerWidget extends StatelessWidget {
@@ -18,6 +19,7 @@ class AnswerWidget extends StatelessWidget {
     this.onCopy,
     this.onThumbUp,
     this.onThumbDown,
+    this.onFollowUpTap,
     super.key,
   });
 
@@ -41,6 +43,9 @@ class AnswerWidget extends StatelessWidget {
 
   /// Callback when thumbs down is tapped
   final void Function(ChatEventModel event, int index)? onThumbDown;
+
+  /// On follow-up question tap
+  final void Function(String question)? onFollowUpTap;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -125,7 +130,7 @@ class AnswerWidget extends StatelessWidget {
                       children: <Widget>[
                         Icon(
                           Icons.menu_book_outlined,
-                          size:25.sp,
+                          size: 25.sp,
                           color: Colors.black,
                         ),
                         10.horizontalSpace,
@@ -140,22 +145,11 @@ class AnswerWidget extends StatelessWidget {
                     ),
                     8.verticalSpace,
                     ...chatEvent.followUpQuestions.map(
-                      (String question) => Padding(
-                        padding: REdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () {},
-                          child: Container(
-                            padding: REdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              question,
-                              style: GoogleFonts.poppins(fontSize: 14.sp),
-                            ),
-                          ),
-                        ),
+                      (String question) => FollowUpCard(
+                        question: question,
+                        onAddTap: () {
+                          onFollowUpTap?.call(question);
+                        },
                       ),
                     ),
                   ],
