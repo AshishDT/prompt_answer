@@ -64,15 +64,18 @@ class ChatPromptSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                child: Text(
-                  prompt,
-                  maxLines: isPinned ? 1 : null,
-                  overflow: isPinned ? TextOverflow.ellipsis : null,
-                  style: GoogleFonts.poppins(
-                    fontSize: isPinned ? 18.sp : 26.sp,
-                    fontWeight: FontWeight.w500,
+              ClipRect(
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: Text(
+                    prompt,
+                    maxLines: isPinned ? 1 : null,
+                    overflow: isPinned ? TextOverflow.ellipsis : null,
+                    style: GoogleFonts.poppins(
+                      fontSize: isPinned ? 18.sp : 26.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
