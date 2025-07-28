@@ -86,7 +86,7 @@ class DashboardController extends GetxController
     } on SearchApiException catch (e) {
       _handleSearchError(e);
     } finally {
-      isWriting.value = false;
+      isWriting(false);
     }
   }
 
@@ -94,7 +94,7 @@ class DashboardController extends GetxController
     if (chatEvent.isNotEmpty) {
       final bool isAtVeryTop = scrollController.offset <= 10;
 
-      firstSectionShouldUnstick.value = isAtVeryTop;
+      firstSectionShouldUnstick(isAtVeryTop);
     }
     for (int i = 0; i < headerKeys.length; i++) {
       final BuildContext? context = headerKeys[i]?.currentContext;
@@ -104,9 +104,9 @@ class DashboardController extends GetxController
         final RxBool pinnedState = pinnedStates[i];
 
         if (isPinned && !pinnedState.value) {
-          pinnedState.value = true;
+          pinnedState(true);
         } else if (!isPinned && pinnedState.value) {
-          pinnedState.value = false;
+          pinnedState(false);
         }
       }
     }
@@ -116,7 +116,7 @@ class DashboardController extends GetxController
   void _prepareForNewSearch(String prompt) {
     chatInputController.clear();
     _messageBuffer.clear();
-    isWriting.value = true;
+    isWriting(true);
 
     final ChatEventModel newEvent = ChatEventModel()..promptKeyword = prompt;
     chatEvent.add(newEvent);

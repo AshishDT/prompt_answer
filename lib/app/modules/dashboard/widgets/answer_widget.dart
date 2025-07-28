@@ -133,8 +133,8 @@ class AnswerWidget extends StatelessWidget {
                   children: <Widget>[
                     IconWidget(
                       onTap: () => onReadOut?.call(chatEvent, eventIndex),
-                      icon: Icons.mic,
-                      name: 'Read out',
+                      icon: Icons.volume_up_outlined,
+                      name: 'Read Aloud',
                       radius: 40,
                       iconSize: 20.sp,
                       border: Border.all(color: Colors.grey.shade300),
@@ -148,8 +148,7 @@ class AnswerWidget extends StatelessWidget {
                               onThumbDown?.call(chatEvent, eventIndex),
                           onThumbUp: () =>
                               onThumbUp?.call(chatEvent, eventIndex),
-                          selected:
-                              -1, // You may want to add a like property to ChatEventModel
+                          selected: -1,
                         ),
                         12.horizontalSpace,
                         GestureDetector(
