@@ -63,18 +63,21 @@ class HtmlCleaner {
   }
 
   static String _manualClean(String input) => input
-      .replaceAll(r'n\\n', '\n')
-      .replaceAll(r'\\n', '\n')
-      .replaceAll(r'\n', '\n')
-      .replaceAll(r'\\t', '\t')
-      .replaceAll(r'\t', '\t')
-      .replaceAll(r'\"', '"')
-      .replaceAllMapped(RegExp(r'\\(?!n|t|")'), (_) => '')
-      .replaceAllMapped(
-    RegExp(r'style=([^\s"<>;]+(?:\s[^\s"<>;]+)*);?'),
+          .replaceAll(r'n\\n', '\n')
+          .replaceAll(r'\\n', '\n')
+          .replaceAll(r'\n', '\n')
+          .replaceAll(r'\\t', '\t')
+          .replaceAll(r'\t', '\t')
+          .replaceAll(r'\"', '"')
+          .replaceAllMapped(RegExp(r'\\(?!n|t|")'), (_) => '')
+          .replaceAllMapped(
+        RegExp(r'style=([^\s"<>;]+(?:\s[^\s"<>;]+)*);?'),
         (Match match) {
-      final String? value = match.group(1);
-      return 'style="$value"';
-    },
-  );
+          final String? value = match.group(1);
+          return 'style="$value"';
+        },
+      ).replaceAllMapped(
+        RegExp(r'\.(?=[A-Z])'),
+        (match) => '. ',
+      );
 }
