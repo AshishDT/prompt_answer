@@ -148,10 +148,10 @@ class DashboardController extends GetxController
 
     await for (final String line in lines) {
       if (line.startsWith('event:')) {
-        currentEvent = line.replaceFirst('event:', '').trim();
+        currentEvent = line.replaceFirst('event: ', '');
         logWTF('New event received: $currentEvent');
       } else if (line.startsWith('data:')) {
-        final String rawData = line.replaceFirst('data:', '').trim();
+        final String rawData = line.replaceFirst('data: ', '');
         if (currentEvent == null || rawData.isEmpty) {
           logWTF('Skipping empty event or data line');
           continue;
@@ -160,6 +160,8 @@ class DashboardController extends GetxController
         if (chatEvent.isNotEmpty) {
           _eventHandler.handleEvent(currentEvent, rawData, chatEvent.last);
         }
+      } else {
+        _eventHandler.handleEvent(currentEvent, line, chatEvent.last);
       }
     }
   }

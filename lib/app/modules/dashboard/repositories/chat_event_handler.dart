@@ -25,7 +25,14 @@ class ChatEventHandler {
   final Function(bool) onWritingStateChanged;
 
   /// Main event handler
-  void handleEvent(String event, String rawData, ChatEventModel currentEvent) {
+  void handleEvent(String? event, String rawData, ChatEventModel currentEvent) {
+    if (event == null || event.isEmpty) {
+      logWTF('ChatEventHandler: Received empty or null event');
+      return;
+    }
+
+    log('ChatEventHandler: Handling event: $event with data: $rawData');
+
     switch (event) {
       case 'message':
         _handleMessageEvent(rawData, currentEvent);
@@ -35,9 +42,6 @@ class ChatEventHandler {
         break;
       case 'sourceLinks':
         _handleSourceLinksHtmlEvent(rawData, currentEvent);
-        break;
-      case 'TestsourceLinks':
-        _handleTestSourceLinksEvent(rawData, currentEvent);
         break;
       case 'keywords':
         _handleKeywordsEvent(rawData, currentEvent);
@@ -57,8 +61,15 @@ class ChatEventHandler {
       case 'not_safe':
         _handleNotSafeEvent(currentEvent);
         break;
+      case 'sourceLinksAll':
+        _handleSourceLinksAll(rawData, currentEvent);
+        break;
+      case 'TestsourceLinks':
+        _handleTestSourceLinks(rawData, currentEvent);
+        break;
       case 'dataDone':
       case 'end':
+        _parsedTestSourceLinksToModel(currentEvent);
         messageBuffer.clear();
         onWritingStateChanged(false);
         break;
@@ -271,34 +282,46 @@ class ChatEventHandler {
     }
   }
 
-  void _handleTestSourceLinksEvent(
-      String rawData, ChatEventModel currentEvent) {
+  /// Handle source links for all events
+  void _handleSourceLinksAll(String rawData, ChatEventModel currentEvent) {
     final String cleaned = HtmlCleaner.clean(rawData);
+
+    if (cleaned.isEmpty) {
+      return;
+    }
+
+    currentEvent.sourceLinks.write(cleaned);
+  }
+
+  /// Handle test source links for all events
+  void _handleTestSourceLinks(String rawData, ChatEventModel currentEvent) {
+    currentEvent.testSourceLinksBuffer.write(rawData);
+  }
+
+  /// Parses test source links from the raw data and updates the current event
+  void _parsedTestSourceLinksToModel(ChatEventModel currentEvent) {
     try {
-      if (cleaned.trimLeft().startsWith('[') &&
-          cleaned.trimRight().endsWith(']')) {
-        final dynamic decoded = jsonDecode(cleaned);
+      final dynamic decoded = jsonDecode(
+        currentEvent.testSourceLinksBuffer.toString(),
+      );
 
-        if (decoded == null) {
-          return;
-        }
-
-        if (decoded is! List) {
-          return;
-        }
-
-        final List<dynamic> jsonList = decoded;
-        final List<SourceLink> links =
-            jsonList.map((dynamic e) => SourceLink.fromJson(e)).toList();
-        currentEvent.sourceLinks = <SourceLink>[
-          ...currentEvent.sourceLinks,
-          ...links
-        ];
-      } else {
-        log('ChatEventHandler: TestsourceLinks is not a valid JSON array, storing as HTML || $cleaned');
+      if (decoded == null) {
+        return;
       }
+
+      if (decoded is! List) {
+        return;
+      }
+
+      final List<dynamic> jsonList = decoded;
+      final List<SourceLink> links =
+          jsonList.map((dynamic e) => SourceLink.fromJson(e)).toList();
+      currentEvent.testSourceLinks = <SourceLink>[
+        ...currentEvent.testSourceLinks,
+        ...links
+      ];
     } on Exception catch (e) {
-      log('ChatEventHandler: Error parsing TestsourceLinks: $e || $cleaned');
+      logE('ChatEventHandler: Error parsing test source links: $e');
     }
   }
 

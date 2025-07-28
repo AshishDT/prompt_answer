@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/source_card.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/source_widget_wrapper.dart';
 import 'package:nigerian_igbo/app/utils/widget_ext.dart';
-
 import '../models/chat_event.dart';
-import '../models/source_link.dart';
 
 /// Widget to display dynamic source links in a chat event
 class SourceWidget extends StatelessWidget {
@@ -26,12 +24,15 @@ class SourceWidget extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         key: scrollKey,
         padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Column(
-          children: List<Widget>.generate(
-            chatEvent.sourceLinks.length,
-            (int index) => SourceCard(
-              source: chatEvent.sourceLinks[index],
-            ).animate(position: index),
+        child: SourceWidgetWrapper(
+          isLoading: !(chatEvent.isStreamComplete ?? false),
+          child: Column(
+            children: List<Widget>.generate(
+              chatEvent.testSourceLinks.length,
+              (int index) => SourceCard(
+                source: chatEvent.testSourceLinks[index],
+              ).animate(position: index),
+            ),
           ),
         ),
       );

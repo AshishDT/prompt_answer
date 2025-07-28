@@ -7,17 +7,21 @@ class ChatEventModel {
   /// Constructor for ChatEventModel
   ChatEventModel({
     StringBuffer? html,
-    List<SourceLink>? sourceLinks,
+    StringBuffer? sourceLinks,
+    StringBuffer? testSourceLinksBuffer,
     List<KeywordLink>? keywords,
     List<String>? brands,
     List<String>? followUpQuestions,
     List<SourceLink>? enginSource,
+    List<SourceLink>? testSourceLinks,
     bool? isStreamComplete,
     this.chatHistoryId,
     this.promptKeyword,
   })  : html = html ?? StringBuffer(),
-        sourceLinks = sourceLinks ?? <SourceLink>[],
+        sourceLinks = sourceLinks ?? StringBuffer(),
+        testSourceLinksBuffer = testSourceLinksBuffer ?? StringBuffer(),
         keywords = keywords ?? <KeywordLink>[],
+        testSourceLinks = testSourceLinks ?? <SourceLink>[],
         brands = brands ?? <String>[],
         followUpQuestions = followUpQuestions ?? <String>[],
         enginSource = enginSource ?? <SourceLink>[],
@@ -26,11 +30,14 @@ class ChatEventModel {
   /// Combined HTML from "message" events.
   StringBuffer html;
 
-  /// Source link cards (from `sourceLinks` or `TestsourceLinks`)
-  List<SourceLink> sourceLinks;
+  /// Source links from the chat event
+  StringBuffer sourceLinks;
 
   /// Engine source links (from `enginSource`)
   List<SourceLink> enginSource;
+
+  /// Test source links
+  List<SourceLink> testSourceLinks;
 
   /// Keywords list with URLs
   List<KeywordLink> keywords;
@@ -50,10 +57,13 @@ class ChatEventModel {
   /// Indicates if the stream is complete
   bool? isStreamComplete;
 
+  /// Test source links for debugging purposes
+  StringBuffer testSourceLinksBuffer;
+
   /// Useful for UI updates — create a deep copy with current state
   ChatEventModel clone() => ChatEventModel(
         html: StringBuffer(html.toString()),
-        sourceLinks: List<SourceLink>.from(sourceLinks),
+        sourceLinks: StringBuffer(sourceLinks.toString()),
         keywords: List<KeywordLink>.from(keywords),
         brands: List<String>.from(brands),
         followUpQuestions: List<String>.from(followUpQuestions),
@@ -61,5 +71,7 @@ class ChatEventModel {
         promptKeyword: promptKeyword,
         enginSource: List<SourceLink>.from(enginSource),
         isStreamComplete: isStreamComplete,
+        testSourceLinksBuffer: StringBuffer(testSourceLinksBuffer.toString()),
+        testSourceLinks: List<SourceLink>.from(testSourceLinks),
       );
 }

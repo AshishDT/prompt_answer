@@ -1,9 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as html_dom;
-
 import '../models/chat_event.dart';
-import '../models/source_link.dart';
 import 'html_cleaner.dart';
 
 /// Copy content repository interface.
@@ -20,16 +18,6 @@ class CopyContentRepo {
         ..writeln('Content:')
         ..writeln(plainText)
         ..writeln();
-    }
-
-    if (event.sourceLinks.isNotEmpty) {
-      buffer.writeln('Source Links:');
-      for (int i = 0; i < event.sourceLinks.length; i++) {
-        final SourceLink source = event.sourceLinks[i];
-        buffer.writeln(
-            '${i + 1}. ${source.title ?? 'No title'} - ${source.url ?? 'No URL'}');
-      }
-      buffer.writeln();
     }
 
     Clipboard.setData(ClipboardData(text: buffer.toString()));
