@@ -33,7 +33,7 @@ class ConditionalSliverStickyHeader extends StatelessWidget {
     if (!shouldStick) {
       return SliverMainAxisGroup(
         key: ValueKey<String>('normal_$sectionIndex'),
-        slivers: [
+        slivers: <Widget>[
           SliverToBoxAdapter(child: header),
           sliver,
         ],

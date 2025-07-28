@@ -62,7 +62,7 @@ class AnswerWidget extends StatelessWidget {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                alignment: Alignment.topLeft,
+                alignment: Alignment.topCenter,
                 child: Container(
                   padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -84,40 +84,45 @@ class AnswerWidget extends StatelessWidget {
               ),
             ],
             if (chatEvent.html.toString().trim().isNotEmpty) ...<Widget>[
-              Padding(
-                padding: REdgeInsets.only(bottom: 16),
-                child: Html(
-                  data: chatEvent.html.toString(),
-                  extensions: <HtmlExtension>[
-                    _codeStyleExt(),
-                  ],
-                  style: <String, Style>{
-                    'body': Style(
-                      fontSize: FontSize(14.sp),
-                      color: Colors.black87,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontWeight: FontWeight.w500,
-                      display: Display.block,
-                    ),
-                    'pre': Style(
-                      backgroundColor: Colors.grey.shade200,
-                      color: Colors.black,
-                      fontSize: FontSize(12.sp),
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      padding: HtmlPaddings.all(12),
-                      whiteSpace: WhiteSpace.pre,
-                      display: Display.block,
-                      textAlign: TextAlign.left,
-                      alignment: Alignment.topLeft,
-                    ),
-                  },
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: REdgeInsets.only(bottom: 16),
+                  child: Html(
+                    data: chatEvent.html.toString(),
+                    extensions: <HtmlExtension>[
+                      _codeStyleExt(),
+                    ],
+                    style: <String, Style>{
+                      'body': Style(
+                        fontSize: FontSize(14.sp),
+                        color: Colors.black87,
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                        fontWeight: FontWeight.w500,
+                        display: Display.block,
+                      ),
+                      'pre': Style(
+                        backgroundColor: Colors.grey.shade200,
+                        color: Colors.black,
+                        fontSize: FontSize(12.sp),
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                        padding: HtmlPaddings.all(12),
+                        whiteSpace: WhiteSpace.pre,
+                        display: Display.block,
+                        textAlign: TextAlign.left,
+                        alignment: Alignment.topLeft,
+                      ),
+                    },
+                  ),
                 ),
               ),
             ],
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.topCenter,
               child: Visibility(
                 visible: chatEvent.isStreamComplete ?? false,
                 replacement: const SizedBox(
@@ -158,48 +163,62 @@ class AnswerWidget extends StatelessWidget {
               ),
             ),
             if (chatEvent.followUpQuestions.isNotEmpty) ...<Widget>[
-              24.verticalSpace,
-              Padding(
-                padding: REdgeInsets.only(bottom: 16, left: 6, right: 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.menu_book_outlined,
-                          size: 25.sp,
-                           color: AppColors.k364958,
-                        ),
-                        10.horizontalSpace,
-                        Text(
-                          'Related Questions',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: 24.verticalSpace,
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: REdgeInsets.only(bottom: 16, left: 6, right: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.menu_book_outlined,
+                            size: 25.sp,
                             color: AppColors.k364958,
                           ),
-                        ),
-                      ],
-                    ),
-                    8.verticalSpace,
-                    ...chatEvent.followUpQuestions.map(
-                      (String question) => FollowUpCard(
-                        question: question,
-                        onAddTap: () {
-                          onFollowUpTap?.call(question);
-                        },
+                          10.horizontalSpace,
+                          Text(
+                            'Related Questions',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.k364958,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      16.verticalSpace,
+                      ...chatEvent.followUpQuestions.map(
+                        (String question) => FollowUpCard(
+                          question: question,
+                          onAddTap: () {
+                            onFollowUpTap?.call(question);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-
-            if (!(chatEvent.isStreamComplete ?? false))...<Widget>[
-              Padding(
-                padding: REdgeInsets.only(left: 16),
-                child: const TypingShimmer(),
+            if (!(chatEvent.isStreamComplete ?? false)) ...<Widget>[
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: REdgeInsets.only(left: 8, top: 5),
+                  child: const TypingShimmer(),
+                ),
               ),
             ],
           ],
