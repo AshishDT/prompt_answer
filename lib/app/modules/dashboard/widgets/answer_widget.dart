@@ -63,7 +63,7 @@ class AnswerWidget extends StatelessWidget {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
+                alignment: Alignment.topLeft,
                 child: Container(
                   padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -88,7 +88,7 @@ class AnswerWidget extends StatelessWidget {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
+                alignment: Alignment.topLeft,
                 child: Padding(
                   padding: REdgeInsets.only(bottom: 16),
                   child: Html(
@@ -123,7 +123,7 @@ class AnswerWidget extends StatelessWidget {
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
+              alignment: Alignment.topLeft,
               child: Visibility(
                 visible: chatEvent.isStreamComplete ?? false,
                 replacement: const SizedBox(
@@ -165,7 +165,7 @@ class AnswerWidget extends StatelessWidget {
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
+              alignment: Alignment.topLeft,
               child: Visibility(
                 child: 24.verticalSpace,
                 visible: chatEvent.followUpQuestions.isNotEmpty,
@@ -177,7 +177,7 @@ class AnswerWidget extends StatelessWidget {
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              alignment: Alignment.topCenter,
+              alignment: Alignment.topLeft,
               child: Visibility(
                 visible: chatEvent.followUpQuestions.isNotEmpty,
                 replacement: SizedBox(
@@ -224,7 +224,7 @@ class AnswerWidget extends StatelessWidget {
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
+                alignment: Alignment.topLeft,
                 child: Padding(
                   padding: REdgeInsets.only(left: 8, top: 5),
                   child: const TypingShimmer(),

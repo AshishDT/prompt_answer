@@ -24,6 +24,8 @@ dependencies:
   url_launcher: ^6.3.2
   shimmer: ^3.0.0
   flutter_staggered_animations: ^1.1.1
+  flutter_tts: ^4.2.3
+  flutter_svg: ^2.2.0
   flutter:
     sdk: flutter
 
