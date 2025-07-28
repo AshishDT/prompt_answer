@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/typing_shimmer.dart';
@@ -161,17 +162,27 @@ class AnswerWidget extends StatelessWidget {
                 ),
               ),
             ),
-            if (chatEvent.followUpQuestions.isNotEmpty) ...<Widget>[
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: Visibility(
                 child: 24.verticalSpace,
+                visible: chatEvent.followUpQuestions.isNotEmpty,
+                replacement: SizedBox(
+                  width: context.width,
+                ),
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: Alignment.topCenter,
+            ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: Visibility(
+                visible: chatEvent.followUpQuestions.isNotEmpty,
+                replacement: SizedBox(
+                  width: context.width,
+                ),
                 child: Padding(
                   padding: REdgeInsets.only(bottom: 16, left: 6, right: 6),
                   child: Column(
@@ -208,7 +219,7 @@ class AnswerWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            ),
             if (!(chatEvent.isStreamComplete ?? false)) ...<Widget>[
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
