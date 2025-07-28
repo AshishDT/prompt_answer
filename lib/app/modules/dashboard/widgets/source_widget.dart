@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/source_card.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/source_widget_wrapper.dart';
 import 'package:nigerian_igbo/app/utils/widget_ext.dart';
@@ -26,14 +27,18 @@ class SourceWidget extends StatelessWidget {
         padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: SourceWidgetWrapper(
           isLoading: !(chatEvent.isStreamComplete ?? false),
-          child: Column(
-            children: List<Widget>.generate(
-              chatEvent.testSourceLinks.length,
-              (int index) => SourceCard(
-                source: chatEvent.testSourceLinks[index],
-              ).animate(position: index),
-            ),
-          ),
+          child: chatEvent.testSourceLinks.isNotEmpty
+              ? Column(
+                  children: List<Widget>.generate(
+                    chatEvent.testSourceLinks.length,
+                    (int index) => SourceCard(
+                      source: chatEvent.testSourceLinks[index],
+                    ).animate(position: index),
+                  ),
+                )
+              : SizedBox(
+                  width: context.width,
+                ),
         ),
       );
 }
