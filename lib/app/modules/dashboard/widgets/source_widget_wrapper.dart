@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nigerian_igbo/app/ui/components/app_placeholder.dart';
 import 'package:nigerian_igbo/app/ui/components/placeholder_card.dart';
 import 'package:nigerian_igbo/app/utils/widget_ext.dart';
@@ -24,15 +23,15 @@ class SourceWidgetWrapper extends StatelessWidget {
         isLoading: isLoading,
         child: child,
         placeHolder: Padding(
-          padding: REdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: 8),
           child: Column(
             children: List<Widget>.generate(
               5,
               (int index) => Padding(
-                padding: REdgeInsets.only(bottom: 8),
-                child: PlaceholderCard(
-                  height: 100.h,
-                  width: 1.sw,
+                padding: const EdgeInsets.only(bottom: 8),
+                child: const PlaceholderCard(
+                  height: 100,
+                  width: 1,
                 ).animate(position: index),
               ),
             ),

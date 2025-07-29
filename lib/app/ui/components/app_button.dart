@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
 
@@ -24,15 +23,15 @@ class AppButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           minimumSize: Size(
             context.width,
-            130.h,
+            130,
           ),
           foregroundColor: AppColors.k00A4A6,
           backgroundColor: AppColors.k00A4A6,
         ),
         child: Text(
           buttonText,
-          style: TextStyle(
-            fontSize: 50.sp,
+          style: const TextStyle(
+            fontSize: 50,
             fontWeight: FontWeight.w500,
             color: AppColors.kffffff,
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'icon_widget.dart';
@@ -22,29 +22,35 @@ class CustomChatInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: REdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,
         ),
-        margin: REdgeInsets.only(
-          bottom: MediaQuery.of(context).viewPadding.bottom > 0
-              ? MediaQuery.of(context).systemGestureInsets.bottom
-              : 0,
-          left: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
-          right: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
-        ),
+        margin: GetPlatform.isWeb
+            ? const EdgeInsets.only(
+                bottom: 30,
+              )
+            : EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom > 0
+                    ? MediaQuery.of(context).systemGestureInsets.bottom
+                    : 0,
+                left: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
+                right: MediaQuery.of(context).viewPadding.bottom > 0 ? 16 : 0,
+              ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(24),
-            topRight: const Radius.circular(24),
-            bottomLeft: MediaQuery.of(context).viewPadding.bottom > 0
-                ? const Radius.circular(24)
-                : Radius.zero,
-            bottomRight: MediaQuery.of(context).viewPadding.bottom > 0
-                ? const Radius.circular(24)
-                : Radius.zero,
-          ).r,
+          borderRadius: GetPlatform.isWeb
+              ? BorderRadius.circular(24)
+              : BorderRadius.only(
+                  topLeft: const Radius.circular(24),
+                  topRight: const Radius.circular(24),
+                  bottomLeft: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? const Radius.circular(24)
+                      : Radius.zero,
+                  bottomRight: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? const Radius.circular(24)
+                      : Radius.zero,
+                ),
           boxShadow: <BoxShadow>[
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
@@ -62,14 +68,14 @@ class CustomChatInput extends StatelessWidget {
               controller: controller,
               style: GoogleFonts.poppins(
                 color: Colors.black54,
-                fontSize: 14.sp,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
               decoration: InputDecoration(
                 hintText: 'Ask anything',
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.black54,
-                  fontSize: 14.sp,
+                  fontSize: 14,
                   fontWeight: FontWeight.w400,
                 ),
                 disabledBorder: InputBorder.none,
@@ -86,28 +92,34 @@ class CustomChatInput extends StatelessWidget {
                 return null;
               },
             ),
-            10.verticalSpace,
+            const SizedBox(height: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
+                const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    const IconWidget(
+                    IconWidget(
                       icon: Icons.add,
                     ),
-                    8.horizontalSpace,
-                    const IconWidget(
+                    SizedBox(
+                      width: 8,
+                    ),
+                    IconWidget(
                       icon: Icons.mic,
                     ),
-                    8.horizontalSpace,
-                    const IconWidget(
+                    SizedBox(
+                      width: 8,
+                    ),
+                    IconWidget(
                       icon: Icons.image,
                       name: 'Image',
                     ),
                   ],
                 ),
-                10.horizontalSpace,
+                const SizedBox(
+                  width: 10,
+                ),
                 IconWidget(
                   onTap: () {
                     onSubmitted?.call();

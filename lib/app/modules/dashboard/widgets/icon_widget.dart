@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// A widget that displays an icon or placeholder.
@@ -56,7 +55,7 @@ class IconWidget extends StatelessWidget {
         },
         child: Container(
           padding:
-              padding ?? REdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: color ?? Colors.white,
             border: border ??
@@ -64,7 +63,7 @@ class IconWidget extends StatelessWidget {
                   color: Colors.grey.shade500,
                 ),
             borderRadius:
-                shape != null ? null : BorderRadius.circular(radius ?? 14).r,
+                shape != null ? null : BorderRadius.circular(radius ?? 14),
             shape: shape ?? BoxShape.rectangle,
           ),
           child: Row(
@@ -73,15 +72,17 @@ class IconWidget extends StatelessWidget {
               Icon(
                 icon,
                 color: Colors.black,
-                size: iconSize ?? 20.sp,
+                size: iconSize ?? 20,
               ),
               if (name != null && name!.isNotEmpty) ...<Widget>[
-                4.horizontalSpace,
+                const SizedBox(
+                  width: 4,
+                ),
                 Text(
                   name!,
                   style: textStyle ?? GoogleFonts.poppins(
                     color: Colors.black,
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Like unlike widget that displays thumbs up and thumbs down icons
 class LikeUnlikeWidget extends StatelessWidget {
@@ -22,7 +21,7 @@ class LikeUnlikeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-      padding: REdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -31,16 +30,18 @@ class LikeUnlikeWidget extends StatelessWidget {
             child: Icon(
               selected == 0 ? Icons.thumb_up : Icons.thumb_up_outlined,
               color: selected == 0 ? Colors.green : Colors.grey,
-              size: 20.sp,
+              size: 20,
             ),
           ),
-          16.horizontalSpace,
+          const SizedBox(
+            width: 16,
+          ),
           GestureDetector(
             onTap: onThumbDown,
             child: Icon(
               selected == 1 ? Icons.thumb_down : Icons.thumb_down_outlined,
               color: selected == 1 ? Colors.red : Colors.grey,
-              size: 20.sp,
+              size: 20,
             ),
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/tab_item.dart';
@@ -55,7 +54,6 @@ class ChatPromptSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Your existing header widget - NO CHANGES
     final Widget headerWidget = AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -68,10 +66,9 @@ class ChatPromptSection extends StatelessWidget {
           ),
         ),
       ),
-      padding: REdgeInsets.only(left: 12, right: 12, top: 12),
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ClipRect(
             child: AnimatedSize(
@@ -85,7 +82,7 @@ class ChatPromptSection extends StatelessWidget {
                 overflow:
                     isPinned && shouldStick ? TextOverflow.ellipsis : null,
                 style: GoogleFonts.poppins(
-                  fontSize: isPinned && shouldStick ? 18.sp : 26.sp,
+                  fontSize: isPinned && shouldStick ? 18 : 26,
                   fontWeight: FontWeight.w500,
                 ),
               ),

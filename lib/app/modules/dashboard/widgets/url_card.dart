@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/services/url_launcher.dart';
 import '../models/source_link.dart';
@@ -23,8 +22,8 @@ class UrlCard extends StatelessWidget {
           );
         },
         child: Container(
-          padding: REdgeInsets.symmetric(vertical: 4),
-          margin: REdgeInsets.only(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          margin: const EdgeInsets.only(
             bottom: 8,
           ),
           child: Row(
@@ -33,16 +32,20 @@ class UrlCard extends StatelessWidget {
               if (source.favicon != null) ...<Widget>[
                 Image.network(
                   source.favicon!,
-                  width: 24.w,
-                  height: 24.h,
+                  width: 24,
+                  height: 24,
                   fit: BoxFit.cover,
                   errorBuilder: (BuildContext context, Object error,
                           StackTrace? stackTrace) =>
                       const Icon(Icons.link, size: 24),
                 ),
-                8.horizontalSpace,
+                const SizedBox(
+                  width: 8,
+                )
               ],
-              10.horizontalSpace,
+              const SizedBox(
+                width: 10,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,19 +57,21 @@ class UrlCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.poppins(
-                          fontSize: 12.sp,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
-                      4.verticalSpace,
+                      const SizedBox(
+                        width: 4,
+                      ),
                     ],
                     Text(
                       source.url ?? '-',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
-                        fontSize: 10.sp,
+                        fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: Colors.blue,
                       ),

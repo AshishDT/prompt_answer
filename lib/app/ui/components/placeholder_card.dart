@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 /// Place holder card
@@ -31,7 +30,7 @@ class PlaceholderCard extends StatelessWidget {
     width: width,
     decoration: BoxDecoration(
       color: Colors.grey.shade300,
-      borderRadius: BorderRadius.circular(radius ?? 8).r,
+      borderRadius: BorderRadius.circular(radius ?? 8),
     ),
     child: child,
   );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// Typing shimmer effect widget
@@ -73,9 +72,9 @@ class _TypingShimmerState extends State<TypingShimmer>
         builder: (_, __) => Align(
           alignment: Alignment.centerLeft,
           child: Container(
-            height: 5.h,
+            height: 5,
             width: width.value,
-            margin: REdgeInsets.symmetric(vertical: 3),
+            margin: const EdgeInsets.symmetric(vertical: 3),
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(4),

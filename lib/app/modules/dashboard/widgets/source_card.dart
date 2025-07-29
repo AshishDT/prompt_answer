@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/source_link.dart';
 import '../services/url_launcher.dart';
@@ -23,11 +22,11 @@ class SourceCard extends StatelessWidget {
           );
         },
         child: Container(
-          padding: REdgeInsets.all(12),
-          margin: REdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(bottom: 8),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12).r,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade200),
             boxShadow: <BoxShadow>[
               BoxShadow(
@@ -44,8 +43,8 @@ class SourceCard extends StatelessWidget {
                 children: <Widget>[
                   Image.network(
                     source.favicon ?? '',
-                    width: 24.w,
-                    height: 24.h,
+                    width: 24,
+                    height: 24,
                     fit: BoxFit.cover,
                     errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) =>
@@ -54,7 +53,9 @@ class SourceCard extends StatelessWidget {
                       size: 24,
                     ),
                   ),
-                  16.horizontalSpace,
+                  const SizedBox(
+                    width: 16,
+                  ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,7 +65,7 @@ class SourceCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.poppins(
-                            fontSize: 12.sp,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -74,7 +75,7 @@ class SourceCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.poppins(
-                            fontSize: 10.sp,
+                            fontSize: 10,
                             fontWeight: FontWeight.w400,
                             color: Colors.blue,
                           ),
@@ -85,13 +86,15 @@ class SourceCard extends StatelessWidget {
                 ],
               ),
               if (source.title != null && source.title!.isNotEmpty) ...<Widget>[
-                8.verticalSpace,
+                const SizedBox(
+                  height: 8,
+                ),
                 Text(
                   source.title!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
                   ),
@@ -99,13 +102,15 @@ class SourceCard extends StatelessWidget {
               ],
               if (source.description != null &&
                   source.description!.isNotEmpty) ...[
-                8.verticalSpace,
+                const SizedBox(
+                  height: 8,
+                ),
                 Text(
                   source.description!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
+                    fontSize: 12,
                     fontWeight: FontWeight.w400,
                     color: Colors.black54,
                   ),

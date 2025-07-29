@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
@@ -54,20 +53,23 @@ class AnswerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         key: scrollKey,
-        padding: REdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            6.verticalSpace,
+            const SizedBox(
+              height: 4,
+            ),
             if (chatEvent.enginSource.isNotEmpty) ...<Widget>[
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 alignment: Alignment.topLeft,
                 child: Container(
-                  padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12).r,
+                    borderRadius: BorderRadius.circular(12),
                     color: Colors.grey.shade100,
                   ),
                   child: Column(
@@ -90,7 +92,7 @@ class AnswerWidget extends StatelessWidget {
                 curve: Curves.easeInOut,
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: REdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Html(
                     data: chatEvent.html.toString(),
                     extensions: <HtmlExtension>[
@@ -98,7 +100,7 @@ class AnswerWidget extends StatelessWidget {
                     ],
                     style: <String, Style>{
                       'body': Style(
-                        fontSize: FontSize(14.sp),
+                        fontSize: FontSize(14),
                         color: Colors.black87,
                         fontFamily: GoogleFonts.poppins().fontFamily,
                         fontWeight: FontWeight.w500,
@@ -107,7 +109,7 @@ class AnswerWidget extends StatelessWidget {
                       'pre': Style(
                         backgroundColor: Colors.grey.shade200,
                         color: Colors.black,
-                        fontSize: FontSize(12.sp),
+                        fontSize: FontSize(12),
                         fontFamily: GoogleFonts.poppins().fontFamily,
                         padding: HtmlPaddings.all(12),
                         whiteSpace: WhiteSpace.pre,
@@ -137,10 +139,10 @@ class AnswerWidget extends StatelessWidget {
                       icon: Icons.volume_up_outlined,
                       name: 'Read Aloud',
                       radius: 40,
-                      iconSize: 20.sp,
+                      iconSize: 20,
                       border: Border.all(color: Colors.grey.shade300),
-                      padding:
-                          REdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                     ),
                     Row(
                       children: <Widget>[
@@ -151,10 +153,12 @@ class AnswerWidget extends StatelessWidget {
                               onThumbUp?.call(chatEvent, eventIndex),
                           selected: -1,
                         ),
-                        12.horizontalSpace,
+                        const SizedBox(
+                          width: 12,
+                        ),
                         GestureDetector(
                           onTap: () => onCopy?.call(chatEvent),
-                          child: Icon(Icons.copy, size: 20.sp),
+                          child: const Icon(Icons.copy, size: 20),
                         ),
                       ],
                     ),
@@ -167,7 +171,9 @@ class AnswerWidget extends StatelessWidget {
               curve: Curves.easeInOut,
               alignment: Alignment.topLeft,
               child: Visibility(
-                child: 24.verticalSpace,
+                child: const SizedBox(
+                  height: 24,
+                ),
                 visible: chatEvent.followUpQuestions.isNotEmpty,
                 replacement: SizedBox(
                   width: context.width,
@@ -184,29 +190,33 @@ class AnswerWidget extends StatelessWidget {
                   width: context.width,
                 ),
                 child: Padding(
-                  padding: REdgeInsets.only(bottom: 16, left: 6, right: 6),
+                  padding: const EdgeInsets.only(bottom: 16, left: 6, right: 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Icon(
+                          const Icon(
                             Icons.menu_book_outlined,
-                            size: 25.sp,
+                            size: 25,
                             color: AppColors.k364958,
                           ),
-                          10.horizontalSpace,
+                          const SizedBox(
+                            width: 12,
+                          ),
                           Text(
                             'Related Questions',
                             style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: AppColors.k364958,
                             ),
                           ),
                         ],
                       ),
-                      16.verticalSpace,
+                      const SizedBox(
+                        height: 16,
+                      ),
                       ...chatEvent.followUpQuestions.map(
                         (String question) => FollowUpCard(
                           question: question,
@@ -221,13 +231,13 @@ class AnswerWidget extends StatelessWidget {
               ),
             ),
             if (!(chatEvent.isStreamComplete ?? false)) ...<Widget>[
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
+              const AnimatedSize(
+                duration: Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: REdgeInsets.only(left: 8, top: 5),
-                  child: const TypingShimmer(),
+                  padding: EdgeInsets.only(left: 8, top: 5),
+                  child: TypingShimmer(),
                 ),
               ),
             ],
@@ -243,11 +253,11 @@ class AnswerWidget extends StatelessWidget {
 
           return Container(
             width: double.infinity,
-            margin: REdgeInsets.symmetric(vertical: 8),
-            padding: REdgeInsets.all(12),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12).r,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,14 +269,16 @@ class AnswerWidget extends StatelessWidget {
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: codeText));
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.copy,
                       color: Colors.black,
-                      size: 18.sp,
+                      size: 18,
                     ),
                   ),
                 ),
-                8.verticalSpace,
+                const SizedBox(
+                  height: 8,
+                ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Text(
@@ -276,9 +288,9 @@ class AnswerWidget extends StatelessWidget {
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontSize: 13.sp,
+                      fontSize: 13,
                       color: Colors.black,
-                      height: 1.6.h,
+                      height: 1.6,
                     ),
                   ),
                 ),
