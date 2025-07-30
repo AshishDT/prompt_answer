@@ -301,25 +301,37 @@ class ChatEventHandler {
   /// Parses test source links from the raw data and updates the current event
   void _parsedTestSourceLinksToModel(ChatEventModel currentEvent) {
     try {
-      final dynamic decoded = jsonDecode(
-        currentEvent.testSourceLinksBuffer.toString(),
-      );
+      final dynamic decoded =
+          jsonDecode(currentEvent.testSourceLinksBuffer.toString());
 
-      if (decoded == null) {
-        return;
-      }
-
-      if (decoded is! List) {
+      if (decoded == null || decoded is! List) {
         return;
       }
 
       final List<dynamic> jsonList = decoded;
-      final List<SourceLink> links =
-          jsonList.map((dynamic e) => SourceLink.fromJson(e)).toList();
-      currentEvent.testSourceLinks = <SourceLink>[
-        ...currentEvent.testSourceLinks,
-        ...links
-      ];
+
+      final Set<String> existingKeys = currentEvent.testSourceLinks
+          .map((SourceLink link) => '${link.title}|${link.domain}')
+          .toSet();
+
+      final List<SourceLink> newLinks = [];
+
+      for (final dynamic item in jsonList) {
+        final SourceLink link = SourceLink.fromJson(item);
+        final String key = '${link.title}|${link.domain}';
+
+        if (!existingKeys.contains(key)) {
+          newLinks.add(link);
+          existingKeys.add(key);
+        }
+      }
+
+      if (newLinks.isNotEmpty) {
+        currentEvent.testSourceLinks = <SourceLink>[
+          ...currentEvent.testSourceLinks,
+          ...newLinks,
+        ];
+      }
     } on Exception catch (e) {
       logE('ChatEventHandler: Error parsing test source links: $e');
     }
