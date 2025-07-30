@@ -25,9 +25,9 @@ class ReadAloudWidget extends StatelessWidget {
   Widget build(BuildContext context) => IconWidget(
         onTap: () => onReadOut?.call(chatEvent, eventIndex),
         icon: (chatEvent.isReading ?? false)
-            ? Icons.stop_circle
+            ? Icons.multitrack_audio
             : Icons.volume_up_outlined,
-        name: (chatEvent.isReading ?? false) ? 'Stop' : 'Read Aloud',
+        name: (chatEvent.isReading ?? false) ? 'Reading..' : 'Read Aloud',
         radius: 40,
         iconSize: 20,
         border: Border.all(color: Colors.grey.shade300),

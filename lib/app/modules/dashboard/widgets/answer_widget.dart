@@ -166,12 +166,18 @@ class AnswerWidget extends StatelessWidget {
               curve: Curves.easeInOut,
               alignment: Alignment.topLeft,
               child: Visibility(
-                child: const SizedBox(
-                  height: 24,
+                visible: (chatEvent.isStreamComplete ?? false) &&
+                    chatEvent.followUpQuestions.isNotEmpty,
+                replacement: const SizedBox(
+                  width: double.infinity,
                 ),
-                visible: chatEvent.followUpQuestions.isNotEmpty,
-                replacement: SizedBox(
-                  width: context.width,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 30, bottom: 30),
+                  child: Divider(
+                    color: Colors.grey.shade300,
+                    thickness: 1,
+                    height: 1,
+                  ),
                 ),
               ),
             ),

@@ -168,7 +168,13 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
       event.html.toString(),
     );
 
-    ttsService.readAloud(cleanedText);
+    ttsService.readAloud(
+      cleanedText,
+      onComplete: () {
+        event.isReading = false;
+        chatEvents.refresh();
+      },
+    );
 
     event.isReading = true;
 
