@@ -15,6 +15,8 @@ class ChatEventModel {
     List<SourceLink>? enginSource,
     List<SourceLink>? testSourceLinks,
     bool? isStreamComplete,
+    bool? isReading,
+    int? like,
     this.chatHistoryId,
     this.promptKeyword,
   })  : html = html ?? StringBuffer(),
@@ -25,6 +27,8 @@ class ChatEventModel {
         brands = brands ?? <String>[],
         followUpQuestions = followUpQuestions ?? <String>[],
         enginSource = enginSource ?? <SourceLink>[],
+        isReading = isReading ?? false,
+        like = like ?? -1,
         isStreamComplete = isStreamComplete ?? false;
 
   /// Combined HTML from "message" events.
@@ -60,6 +64,12 @@ class ChatEventModel {
   /// Test source links for debugging purposes
   StringBuffer testSourceLinksBuffer;
 
+  /// Is reading
+  bool? isReading;
+
+  /// Is liked state for the chat event
+  int? like;
+
   /// Useful for UI updates — create a deep copy with current state
   ChatEventModel clone() => ChatEventModel(
         html: StringBuffer(html.toString()),
@@ -71,7 +81,9 @@ class ChatEventModel {
         promptKeyword: promptKeyword,
         enginSource: List<SourceLink>.from(enginSource),
         isStreamComplete: isStreamComplete,
+        isReading: isReading,
         testSourceLinksBuffer: StringBuffer(testSourceLinksBuffer.toString()),
         testSourceLinks: List<SourceLink>.from(testSourceLinks),
+        like: like,
       );
 }

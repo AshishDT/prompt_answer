@@ -53,7 +53,9 @@ class IconWidget extends StatelessWidget {
         onTap: () {
           onTap?.call();
         },
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           padding:
               padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(

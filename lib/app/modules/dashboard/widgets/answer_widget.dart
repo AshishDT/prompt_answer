@@ -4,10 +4,10 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/widgets/read_aloud_widget.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/typing_shimmer.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/widgets/url_card.dart';
 import '../models/chat_event.dart';
-import '../widgets/icon_widget.dart';
 import '../widgets/like_unlike_widget.dart';
 import 'follow_up_card.dart';
 
@@ -134,15 +134,10 @@ class AnswerWidget extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    IconWidget(
-                      onTap: () => onReadOut?.call(chatEvent, eventIndex),
-                      icon: Icons.volume_up_outlined,
-                      name: 'Read Aloud',
-                      radius: 40,
-                      iconSize: 20,
-                      border: Border.all(color: Colors.grey.shade300),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                    ReadAloudWidget(
+                      chatEvent: chatEvent,
+                      eventIndex: eventIndex,
+                      onReadOut: onReadOut,
                     ),
                     Row(
                       children: <Widget>[
@@ -151,7 +146,7 @@ class AnswerWidget extends StatelessWidget {
                               onThumbDown?.call(chatEvent, eventIndex),
                           onThumbUp: () =>
                               onThumbUp?.call(chatEvent, eventIndex),
-                          selected: -1,
+                          selected: chatEvent.like,
                         ),
                         const SizedBox(
                           width: 12,

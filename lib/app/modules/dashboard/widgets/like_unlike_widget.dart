@@ -21,7 +21,7 @@ class LikeUnlikeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

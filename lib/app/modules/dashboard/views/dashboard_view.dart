@@ -46,7 +46,7 @@ class DashboardView extends GetView<DashboardController> {
                   curve: Curves.easeInOut,
                   child: Obx(
                     () => Visibility(
-                      visible: controller.chatEvent().isEmpty,
+                      visible: controller.chatEvents().isEmpty,
                       replacement: SizedBox(
                         width: context.width,
                       ),
@@ -84,16 +84,16 @@ class DashboardView extends GetView<DashboardController> {
                   () => CustomScrollView(
                     controller: controller.scrollController,
                     slivers: <Widget>[
-                      if (controller.chatEvent.isNotEmpty) ...<Widget>[
+                      if (controller.chatEvents.isNotEmpty) ...<Widget>[
                         ...List<Widget>.generate(
-                          controller.chatEvent.length * 2 -
-                              (controller.chatEvent.isEmpty ? 0 : 1),
+                          controller.chatEvents.length * 2 -
+                              (controller.chatEvents.isEmpty ? 0 : 1),
                           (int i) {
                             final bool isDivider = i.isOdd;
                             final int index = i ~/ 2;
 
                             if (isDivider &&
-                                index < controller.chatEvent.length - 1) {
+                                index < controller.chatEvents.length - 1) {
                               return SliverToBoxAdapter(
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 20),
@@ -106,13 +106,13 @@ class DashboardView extends GetView<DashboardController> {
                               );
                             }
 
-                            if (index >= controller.chatEvent.length) {
+                            if (index >= controller.chatEvents.length) {
                               return const SliverToBoxAdapter(
                                   child: SizedBox.shrink());
                             }
 
                             final ChatEventModel event =
-                                controller.chatEvent[index];
+                                controller.chatEvents[index];
 
                             return ChatPromptSection(
                               sectionKey: controller.promptKeys[index]!,

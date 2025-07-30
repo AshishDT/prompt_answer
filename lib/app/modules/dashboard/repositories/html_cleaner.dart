@@ -1,6 +1,7 @@
 import 'dart:convert';
-
+import 'package:html/dom.dart';
 import 'package:nigerian_igbo/app/data/config/logger.dart';
+import 'package:html/parser.dart' as html_parser;
 
 /// HtmlCleaner is a class that provides methods to clean and sanitize HTML content.
 class HtmlCleaner {
@@ -78,6 +79,44 @@ class HtmlCleaner {
         },
       ).replaceAllMapped(
         RegExp(r'\.(?=[A-Z])'),
-        (match) => '. ',
+        (Match match) => '. ',
       );
-}
+
+  /// Converts HTML input to plain text by removing all HTML tags and entities.
+  static String toPlainText(String htmlInput) {
+    try {
+      final Document document = html_parser.parse(htmlInput);
+      final StringBuffer buffer = StringBuffer();
+
+      void walk(Node node) {
+        if (node is Text) {
+          buffer.write(node.text.trim());
+        } else if (node is Element) {
+          switch (node.localName) {
+            case 'h1':
+            case 'h2':
+            case 'h3':
+              buffer.write('\n\n${node.text.trim().toUpperCase()}\n');
+              break;
+            case 'p':
+              buffer.write('\n${node.text.trim()}\n');
+              break;
+            case 'li':
+              buffer.write('\n• ${node.text.trim()}');
+              break;
+            case 'br':
+              buffer.write('\n');
+              break;
+            default:
+              node.nodes.forEach(walk);
+          }
+        }
+      }
+
+      walk(document.body ?? Element.tag('body'));
+      return buffer.toString().replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
+    } catch (e) {
+      logE('HtmlCleaner: Error parsing HTML for TTS: $e');
+      return htmlInput;
+    }
+  }}

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nigerian_igbo/app/modules/dashboard/repositories/html_cleaner.dart';
 import '../../../data/config/logger.dart';
 import '../models/chat_event.dart';
 import '../models/tab_item.dart';
 import '../repositories/copy_content_repo.dart';
+import '../services/text_to_speech_service.dart';
 import '../widgets/answer_widget.dart';
 import '../widgets/source_widget.dart';
 
@@ -33,7 +35,10 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
   ScrollController get scrollController;
 
   /// Reactive list of chat events that will be updated dynamically
-  RxList<ChatEventModel> get chatEvent;
+  RxList<ChatEventModel> get chatEvents;
+
+  /// Text editing controller for the chat input field
+  TextToSpeechService get ttsService;
 
   /// Reactive list to manage the pinned states of headers
   final RxList<RxBool> pinnedStates = <RxBool>[].obs;
@@ -61,7 +66,7 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
       headerKeys[eventIndex] = GlobalKey(debugLabel: 'chat_header_$eventIndex');
     }
 
-    final ChatEventModel event = chatEvent[eventIndex];
+    final ChatEventModel event = chatEvents[eventIndex];
     final List<TabItem> tabs = <TabItem>[];
     final List<GlobalKey<State<StatefulWidget>>> contentKeyList =
         <GlobalKey<State<StatefulWidget>>>[];
@@ -144,7 +149,31 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
   }
 
   /// On read out action for a chat event
-  void onReadOut(ChatEventModel event, int index) {}
+  void onReadOut(ChatEventModel event, int index) {
+    if (event.isReading ?? false) {
+      ttsService.stop();
+      event.isReading = false;
+      chatEvents.refresh();
+      return;
+    }
+
+    for (final ChatEventModel _event in chatEvents) {
+      if (_event.isReading ?? false) {
+        _event.isReading = false;
+      }
+      chatEvents.refresh();
+    }
+
+    final String cleanedText = HtmlCleaner.toPlainText(
+      event.html.toString(),
+    );
+
+    ttsService.readAloud(cleanedText);
+
+    event.isReading = true;
+
+    chatEvents.refresh();
+  }
 
   /// Handle follow-up question tap
   void onFollowUpQuestionTap(String question) {
@@ -158,14 +187,31 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
 
   /// Update existing tabs content when new data arrives
   void updateTabsContent(int eventIndex) {
-    chatEvent.refresh();
+    chatEvents.refresh();
+  }
+
+  /// type: 0 = thumbs up, 1 = thumbs down
+  void toggleLike(ChatEventModel event, int index, int type) {
+    final int selected = (type == 0) ? 0 : 1;
+
+    if (event.like == selected) {
+      event.like = -1;
+    } else {
+      event.like = selected;
+    }
+
+    chatEvents.refresh();
   }
 
   /// On thumbs up or down action
-  void onThumbsUp(ChatEventModel event, int index) {}
+  void onThumbsUp(ChatEventModel event, int index) {
+    toggleLike(event, index, 0);
+  }
 
   /// On thumbs down action
-  void onThumbsDown(ChatEventModel event, int index) {}
+  void onThumbsDown(ChatEventModel event, int index) {
+    toggleLike(event, index, 1);
+  }
 
   /// Copy chat event content to clipboard
   void copyChatEventContent(ChatEventModel event) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:nigerian_igbo/app/data/config/logger.dart';
+import '../services/text_to_speech_service.dart';
 import 'tab_management_mixin.dart';
 import '../models/chat_event.dart';
 import '../repositories/chat_event_handler.dart';
@@ -13,10 +14,14 @@ class DashboardController extends GetxController
     with GetTickerProviderStateMixin, TabManagementMixin {
   /// Reactive list that gets updated as events stream in
   @override
-  final RxList<ChatEventModel> chatEvent = <ChatEventModel>[].obs;
+  final RxList<ChatEventModel> chatEvents = <ChatEventModel>[].obs;
 
   /// Internal buffer for message-type events
   final StringBuffer _messageBuffer = StringBuffer();
+
+  /// TTs service for text-to-speech functionality
+  @override
+  final TextToSpeechService ttsService = TextToSpeechService();
 
   /// Scroll controller for the chat view
   @override
@@ -91,7 +96,7 @@ class DashboardController extends GetxController
   }
 
   void _onScroll() {
-    if (chatEvent.isNotEmpty) {
+    if (chatEvents.isNotEmpty) {
       final bool isAtVeryTop = scrollController.offset <= 10;
 
       firstSectionShouldUnstick(isAtVeryTop);
@@ -119,9 +124,9 @@ class DashboardController extends GetxController
     isWriting(true);
 
     final ChatEventModel newEvent = ChatEventModel()..promptKeyword = prompt;
-    chatEvent.add(newEvent);
+    chatEvents.add(newEvent);
 
-    final int currentEventIndex = chatEvent.length - 1;
+    final int currentEventIndex = chatEvents.length - 1;
     createInitialTabsForEvent(currentEventIndex, prompt);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -157,19 +162,19 @@ class DashboardController extends GetxController
           continue;
         }
 
-        if (chatEvent.isNotEmpty) {
-          _eventHandler.handleEvent(currentEvent, rawData, chatEvent.last);
+        if (chatEvents.isNotEmpty) {
+          _eventHandler.handleEvent(currentEvent, rawData, chatEvents.last);
         }
       } else {
-        _eventHandler.handleEvent(currentEvent, line, chatEvent.last);
+        _eventHandler.handleEvent(currentEvent, line, chatEvents.last);
       }
     }
   }
 
   /// Called when an event is updated
   void _handleEventUpdated(ChatEventModel updatedEvent) {
-    if (chatEvent.isNotEmpty) {
-      final int currentEventIndex = chatEvent.length - 1;
+    if (chatEvents.isNotEmpty) {
+      final int currentEventIndex = chatEvents.length - 1;
       updateTabsContent(currentEventIndex);
     }
   }
