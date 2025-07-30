@@ -71,12 +71,11 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
     final List<GlobalKey<State<StatefulWidget>>> contentKeyList =
         <GlobalKey<State<StatefulWidget>>>[];
 
-    // Create Answer tab
     final GlobalKey<State<StatefulWidget>> answerKey =
         GlobalKey<State<StatefulWidget>>(
-      debugLabel: 'content_answer_${eventIndex}_fixed',
-    );
+            debugLabel: 'content_answer_${eventIndex}_fixed');
     contentKeyList.add(answerKey);
+
     tabs.add(
       TabItem(
         label: 'Answer',
@@ -93,29 +92,11 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
       ),
     );
 
-    // Create Sources tab
-    final GlobalKey<State<StatefulWidget>> sourcesKey =
-        GlobalKey<State<StatefulWidget>>(
-      debugLabel: 'content_sources_${eventIndex}_fixed',
-    );
-    contentKeyList.add(sourcesKey);
-    tabs.add(
-      TabItem(
-        label: 'Sources',
-        builder: () => SourceWidget(
-          scrollKey: sourcesKey,
-          chatEvent: event,
-        ),
-      ),
-    );
-
     contentKeys[eventIndex] = contentKeyList;
     tabItems[eventIndex] = tabs;
 
-    final TabController controller = TabController(
-      length: tabs.length,
-      vsync: this,
-    );
+    final TabController controller =
+        TabController(length: tabs.length, vsync: this);
     tabControllers[eventIndex] = controller;
     tabIndices[eventIndex] = 0.obs;
 
@@ -123,27 +104,31 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
       pinnedStates.add(false.obs);
     }
 
-    controller.addListener(() {
-      if (controller.indexIsChanging) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final BuildContext? headerContext =
-              headerKeys[eventIndex]?.currentContext;
-          final GlobalKey<State<StatefulWidget>>? contentKey =
-              contentKeys[eventIndex]?[controller.index];
-          final bool isPinned = isHeaderPinned(headerContext);
+    controller.addListener(
+      () {
+        if (controller.indexIsChanging) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) {
+              final BuildContext? headerContext =
+                  headerKeys[eventIndex]?.currentContext;
+              final GlobalKey<State<StatefulWidget>>? contentKey =
+                  contentKeys[eventIndex]?[controller.index];
+              final bool isPinned = isHeaderPinned(headerContext);
 
-          if (isPinned) {
-            if (contentKey != null) {
-              scrollToRevealContent(contentKey);
-            }
-          } else {
-            scrollToPrompt(headerKeys[eventIndex]!);
-          }
-        });
+              if (isPinned) {
+                if (contentKey != null) {
+                  scrollToRevealContent(contentKey);
+                }
+              } else {
+                scrollToPrompt(headerKeys[eventIndex]!);
+              }
+            },
+          );
 
-        tabIndices[eventIndex]?.value = controller.index;
-      }
-    });
+          tabIndices[eventIndex]?.value = controller.index;
+        }
+      },
+    );
 
     logWTF('Created initial tabs for event $eventIndex with prompt: $prompt');
   }
@@ -183,10 +168,8 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
 
   /// Handle follow-up question tap
   void onFollowUpQuestionTap(String question) {
-    scrollController.animateTo(
-      scrollController.position.maxScrollExtent + 200,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+    scrollController.jumpTo(
+      scrollController.position.maxScrollExtent,
     );
     loadStreamedContent(question);
   }
@@ -290,7 +273,7 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
 
         if (contentTop < pinnedHeaderHeight) {
           final double targetOffset =
-              scrollOffset + (contentTop - pinnedHeaderHeight) - 50;
+              scrollOffset + (contentTop - pinnedHeaderHeight);
 
           scrollController.animateTo(
             targetOffset.clamp(
@@ -303,5 +286,71 @@ mixin TabManagementMixin on GetxController, GetTickerProviderStateMixin {
         }
       }
     }
+  }
+
+  /// Add a Sources tab for the specified chat event
+  void addSourcesTabForEvent(int eventIndex) {
+    final ChatEventModel event = chatEvents[eventIndex];
+
+    final bool sourcesTabExists =
+        tabItems[eventIndex]?.any((TabItem tab) => tab.label == 'Sources') ??
+            false;
+    if (sourcesTabExists) {
+      return;
+    }
+
+    final GlobalKey<State<StatefulWidget>> sourcesKey =
+        GlobalKey<State<StatefulWidget>>(
+            debugLabel: 'content_sources_${eventIndex}_fixed');
+
+    contentKeys[eventIndex]?.add(sourcesKey);
+
+    tabItems[eventIndex]?.add(
+      TabItem(
+        label: 'Sources',
+        builder: () => SourceWidget(
+          scrollKey: sourcesKey,
+          chatEvent: event,
+        ),
+      ),
+    );
+
+    final TabController? oldController = tabControllers[eventIndex];
+    oldController?.dispose();
+
+    final List<TabItem> newTabs = tabItems[eventIndex]!;
+    final TabController newController =
+        TabController(length: newTabs.length, vsync: this);
+    tabControllers[eventIndex] = newController;
+
+    tabIndices[eventIndex] = 0.obs;
+
+    newController.addListener(
+      () {
+        if (newController.indexIsChanging) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final BuildContext? headerContext =
+                headerKeys[eventIndex]?.currentContext;
+            final GlobalKey<State<StatefulWidget>>? contentKey =
+                contentKeys[eventIndex]?[newController.index];
+            final bool isPinned = isHeaderPinned(headerContext);
+
+            if (isPinned) {
+              if (contentKey != null) {
+                scrollToRevealContent(contentKey);
+              }
+            } else {
+              scrollToPrompt(headerKeys[eventIndex]!);
+            }
+          });
+
+          tabIndices[eventIndex]?.value = newController.index;
+        }
+      },
+    );
+
+    logWTF('Added Sources tab for event $eventIndex');
+
+    chatEvents.refresh();
   }
 }

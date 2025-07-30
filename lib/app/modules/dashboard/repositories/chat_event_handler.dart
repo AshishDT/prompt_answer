@@ -13,6 +13,7 @@ class ChatEventHandler {
     required this.messageBuffer,
     required this.onEventUpdated,
     required this.onWritingStateChanged,
+    required this.onSourcesParsed,
   });
 
   /// Buffer to accumulate message content
@@ -23,6 +24,9 @@ class ChatEventHandler {
 
   /// Callback to notify when writing state changes
   final Function(bool) onWritingStateChanged;
+
+  /// Callback to notify when sources are parsed
+  final void Function(ChatEventModel event) onSourcesParsed;
 
   /// Main event handler
   void handleEvent(String? event, String rawData, ChatEventModel currentEvent) {
@@ -331,6 +335,8 @@ class ChatEventHandler {
           ...currentEvent.testSourceLinks,
           ...newLinks,
         ];
+
+        onSourcesParsed(currentEvent);
       }
     } on Exception catch (e) {
       logE('ChatEventHandler: Error parsing test source links: $e');

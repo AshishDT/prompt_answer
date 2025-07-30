@@ -52,6 +52,12 @@ class DashboardController extends GetxController
       messageBuffer: _messageBuffer,
       onEventUpdated: _handleEventUpdated,
       onWritingStateChanged: (bool writing) => isWriting(writing),
+      onSourcesParsed: (ChatEventModel event) {
+        final int eventIndex = chatEvents.indexOf(event);
+        if (eventIndex >= 0) {
+          addSourcesTabForEvent(eventIndex);
+        }
+      },
     );
   }
 
@@ -129,12 +135,14 @@ class DashboardController extends GetxController
     final int currentEventIndex = chatEvents.length - 1;
     createInitialTabsForEvent(currentEventIndex, prompt);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final GlobalKey? headerKey = headerKeys[currentEventIndex];
-      if (headerKey != null) {
-        scrollToPrompt(headerKey);
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        final GlobalKey? headerKey = headerKeys[currentEventIndex];
+        if (headerKey != null) {
+          scrollToPrompt(headerKey);
+        }
+      },
+    );
   }
 
   /// Handles search API specific errors
