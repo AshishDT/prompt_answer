@@ -23,6 +23,7 @@ class AnswerWidget extends StatelessWidget {
     this.onThumbUp,
     this.onThumbDown,
     this.onFollowUpTap,
+    this.onDownload,
     super.key,
   });
 
@@ -40,6 +41,9 @@ class AnswerWidget extends StatelessWidget {
 
   /// Callback when the copy icon is tapped
   final void Function(ChatEventModel event)? onCopy;
+
+  /// On download icon tap
+  final void Function(ChatEventModel event)? onDownload;
 
   /// Callback when thumbs up is tapped
   final void Function(ChatEventModel event, int index)? onThumbUp;
@@ -154,6 +158,16 @@ class AnswerWidget extends StatelessWidget {
                         GestureDetector(
                           onTap: () => onCopy?.call(chatEvent),
                           child: const Icon(Icons.copy, size: 20),
+                        ),
+                        const SizedBox(
+                          width: 12,
+                        ),
+                        GestureDetector(
+                          onTap: () => onDownload?.call(chatEvent),
+                          child: const Icon(
+                            Icons.download_for_offline_outlined,
+                            size: 25,
+                          ),
                         ),
                       ],
                     ),
