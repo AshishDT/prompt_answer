@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/data/config/app_colors.dart';
@@ -101,6 +102,7 @@ class AnswerWidget extends StatelessWidget {
                     data: chatEvent.html.toString(),
                     extensions: <HtmlExtension>[
                       _codeStyleExt(),
+                      const TableHtmlExtension(),
                     ],
                     style: <String, Style>{
                       'body': Style(

@@ -70,20 +70,23 @@ class ChatPromptSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          AnimatedDefaultTextStyle(
-            child: Text('$prompt'),
-            style: GoogleFonts.poppins(
-              fontSize: isPinned && shouldStick ? 18 : 28,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+          ClipRect(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.centerLeft,
+              reverseDuration: const Duration(milliseconds: 300),
+              child: Text(
+                prompt,
+                maxLines: isPinned && shouldStick ? 1 : null,
+                overflow:
+                    isPinned && shouldStick ? TextOverflow.ellipsis : null,
+                style: GoogleFonts.poppins(
+                  fontSize: isPinned && shouldStick ? 18 : 26,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            duration: const Duration(milliseconds: 300),
-            maxLines: isPinned && shouldStick ? 1 : null,
-            overflow: isPinned && shouldStick
-                ? TextOverflow.ellipsis
-                : TextOverflow.clip,
-            curve: Curves.easeInOut,
-            textAlign: TextAlign.start,
           ),
           const SizedBox(height: 8),
           if (tabs.length > 1 && tabController != null) ...<Widget>[
