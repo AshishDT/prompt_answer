@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nigerian_igbo/app/modules/dashboard/models/tab_item.dart';
 import '../models/chat_event.dart';
-import '../widgets/sticky_header.dart';
 
 /// ChatPromptSection displays a section of chat prompts with tabs for answers and sources
 class ChatPromptSection extends StatelessWidget {
@@ -134,10 +134,7 @@ class ChatPromptSection extends StatelessWidget {
       ),
     );
 
-    return ConditionalSliverStickyHeader(
-      sectionKey: sectionKey,
-      shouldStick: shouldStick,
-      sectionIndex: sectionIndex,
+    return SliverStickyHeader(
       header: headerWidget,
       sliver: contentWidget,
     );
